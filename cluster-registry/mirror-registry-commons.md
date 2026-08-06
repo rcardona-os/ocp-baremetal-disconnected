@@ -100,7 +100,7 @@ Here it is visible the end point of the registry. Login with credentials user:"q
 
 - Complete the secret file to login at the mirror registry and Red Hat registries, by  merging the `pull-secret.json` (cloud.redhat.com) and the credentials of the mirror registry.
   ```bash
-  podman login -u admin --authfile pull-secret.json registry.sandbox2278.opentlc.com:8443 --tls-verify=false
+  podman login -u quayadmin --authfile pull-secret.json registry.sandbox2278.opentlc.com:8443 --tls-verify=false
   ```
 
 - Load the needed variables to mirror the images for OCP v4.12
