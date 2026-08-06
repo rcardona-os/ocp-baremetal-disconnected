@@ -30,7 +30,7 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
  💥 NOTE 💥
 
-$\textcolor{LightSalmon} {\text{CHECK THAT PORT 8443 IS OPEN, AS IT IS THE DEFAULT PORT WHERE THE INSTALLER CONFIGURES THE QUAY SERVICE. }}$
+$\textcolor{LightSalmon} {\text{CHECK THAT PORT 8443 IS OPEN, AS IT IS THE DEFAULT PORT WHERE THE INSTALLER CONFIGURES THE QUAY SERVICEbggegtetg. }}$
 
 #### Steps
 
