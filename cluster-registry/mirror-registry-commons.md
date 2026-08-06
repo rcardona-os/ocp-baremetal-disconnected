@@ -57,14 +57,14 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
   ![](media/binaries_disconnected.png)
 
 - Installing oc binary
-```bash
-    
-tar xvzf openshift-client-linux.tar.gz
-    
-sudo mv oc /usr/local/bin/oc
+  ```bash
+      
+  tar xvzf openshift-client-linux.tar.gz
+      
+  sudo mv oc /usr/local/bin/oc
 
-sudo chmod +x /usr/local/bin/oc
-```
+  sudo chmod +x /usr/local/bin/oc
+  ```
 
 - Deploying mirror registry
   ```bash
