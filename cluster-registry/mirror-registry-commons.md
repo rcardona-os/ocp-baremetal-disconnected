@@ -62,7 +62,7 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
   ```
 
   ```bash
-  sudo ./mirror-registry install --quayHostname registry.sandbox2278.opentlc.com --initUser admin --initPassword "quayPass123"
+  sudo ./mirror-registry install --quayHostname registry.sandbox2278.opentlc.com --initUser quayadmin --initPassword "quayPass123"
   ```
 
 ![`Example Command Launch`](media/quay-0.png)
