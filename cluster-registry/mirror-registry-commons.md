@@ -54,7 +54,17 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
 
 - Download the binaries; _oc, oc-mirror, openshift-install and mirror-registry_ [__HERE__](https://console.redhat.com/openshift/downloads) 
 
-![](media/binaries_disconnected.png)
+  ![](media/binaries_disconnected.png)
+
+- Installing oc binary
+```bash
+    
+tar xvzf openshift-client-linux.tar.gz
+    
+sudo mv oc /usr/local/bin/oc
+
+sudo chmod +x /usr/local/bin/oc
+```
 
 - Deploying mirror registry
   ```bash
@@ -82,16 +92,6 @@ Here it is visible the end point of the registry. Login with credentials user:"a
   sudo update-ca-trust
   ```
 
-#### Installing oc binary
-```bash
-curl -LO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz"
-    
-tar -xvzf openshift-client-linux.tar.gz
-    
-sudo mv oc /usr/local/bin/oc
-
-sudo chmod +x /usr/local/bin/oc
-```
 
 ### The following steps show how to mirror the Openshift Cluster installation packages
 
