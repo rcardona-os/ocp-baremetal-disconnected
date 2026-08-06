@@ -30,10 +30,8 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
 ❗ $\textcolor{LightSalmon}  {\text{ NOTE: Check that port 8443 is open, as it is the default port where the installer configures the quay service. However that port can also be customized. }}$
 
-> $\textcolor{LightSalmon}    {\text{ MY ORANGE COLOR TEXT  }}$
-```text
-$\textcolor{LightSalmon}    {\text{ MY ORANGE COLOR TEXT  }}$
-```
+> $\textcolor{LightSalmon} {\text{80}} {\text{ MY ORANGE COLOR TEXT  }}$
+
 
 #### Steps
 
