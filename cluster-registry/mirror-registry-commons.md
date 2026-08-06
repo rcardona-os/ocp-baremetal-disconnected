@@ -28,10 +28,7 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
   - A hostname with a resolvable URL
 
-❗$\textcolor{LightSalmon}  {\text{ NOTE: Check that port 8443 is open, as it is the default port where the installer configures the quay service. However that port can also be customized. }}$
-
-> $\textcolor{LightSalmon} {\text{80}} {\text{ MY ORANGE COLOR TEXT  }}$
-
+❗ $\textcolor{LightSalmon} {\text{ NOTE: CHECK THAT PORT 8443 IS OPEN, AS IT IS THE DEFAULT PORT WHERE THE INSTALLER CONFIGURES THE QUAY SERVICE. }}$
 
 #### Steps
 
