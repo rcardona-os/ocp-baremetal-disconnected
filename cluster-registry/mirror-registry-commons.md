@@ -30,15 +30,26 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
 $\textcolor{LightSalmon}  {\text{ NOTE: Check that port 8443 is open, as it is the default port where the installer configures the quay service. However that port can also be customized. }}$
 
+#### Steps
+
 - Install podman
   ```bash
-  sudo dnf install podman -y
+  sudo dnf install -y \
+    container-tools \
+    openssl \
+    jq \
+    curl \
+    wget \
+    tar \
+    gzip \
+    bind-utils
+
+  podman --version
+  skopeo --version
+  openssl version
   ```
 
-- Download the `mirror-registry` binary
-  ```bash
-  wget https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/mirror-registry/1.3.9/mirror-registry.tar.gz
-  ``` 
+- Download the binaries oc, oc-mirror, openshift-install and mirror-registry binary [__HERE__](https://console.redhat.com/openshift/downloads) 
 
 - Deploying mirror registry
   ```bash
