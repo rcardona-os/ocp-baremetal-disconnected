@@ -52,7 +52,7 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
   openssl version
   ```
 
-- Download the binaries _oc, oc-mirror, openshift-install and mirror-registry_ [__HERE__](https://console.redhat.com/openshift/downloads) 
+- Download the binaries; _oc, oc-mirror, openshift-install and mirror-registry_ [__HERE__](https://console.redhat.com/openshift/downloads) 
 
 ![](media/binaries_disconnected.png)
 
