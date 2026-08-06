@@ -80,7 +80,7 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
 
 ![`Example Command Result`](media/quay-1.png)
 
-Here it is visible the end point of the registry. Login with credentials user:"admin" password:"quayPass123"
+Here it is visible the end point of the registry. Login with credentials user:"quayadmin" password:"quayPass123"
 
 - __(optional)__ in case the default self-signed certs are being used, please use the following procedure
   ```bash
