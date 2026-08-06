@@ -10,7 +10,7 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
   - An OpenShift Container Platform subscription.
 
-  - Red Hat Enterprise Linux 8 (or above) with Podman 3.3 installed.
+  - Red Hat Enterprise Linux 8 (or above) with Podman 5.3 installed.
 
   - Fully qualified domain name for the Red Hat Quay service, which must resolve through a DNS server.
 
@@ -22,9 +22,9 @@ __Mirroring to a fully disconnected registry from a disk__ [__HERE__](https://do
 
   - 8 GB of RAM.
 
-  - Binaries: oc
+  - Binaries: oc, oc-mirror, openshift-install and mirror-registry
 
-  - About 12 GB for OpenShift Container Platform 4.12 release images, or about 358 GB for OpenShift Container Platform 4.12 release images and OpenShift Container Platform 4.12 Red Hat Operator images. Up to 1 TB per stream or more is suggested.
+  - Storage: 50 GB for OpenShift Container Platform 4.21 release images, or about 750 GB for OpenShift Container Platform 4.21 release images and OpenShift Container Platform 4.21 Red Hat Operator images. Up to 1 TB per stream or more is suggested.
 
   - A hostname with a resolvable URL
 
