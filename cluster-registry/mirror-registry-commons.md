@@ -54,6 +54,8 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
 
 - Download the binaries oc, oc-mirror, openshift-install and mirror-registry binary [__HERE__](https://console.redhat.com/openshift/downloads) 
 
+[](media/binaries_disconnected.png)
+
 - Deploying mirror registry
   ```bash
   tar xzvf mirror-registry.tar.gz
