@@ -46,7 +46,6 @@ Before beginning the installation, ensure the following infrastructure and requi
 
 ### Repository Structure
 
-*(Adjust this section based on how you organize your files)*
 
 ```text
 ├── manifests/            # Custom Kubernetes manifests applied during Day-0/Day-1
