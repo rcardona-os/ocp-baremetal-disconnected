@@ -51,9 +51,7 @@ The following infrastructure must be available before starting the installation:
 - A container registry accessible from all OpenShift nodes.
 - A RHEL 9 system for preparing and mirroring the OpenShift content.
 - A mechanism to boot the generated Agent ISO on every bare-metal server:
-  - BMC virtual media, or
-  - physical media, or
-  - PXE/HTTP boot if available.
+  - BMC virtual media
 - API and application ingress load balancing infrastructure, when using `platform: none`.
 
 For this project, additional worker capacity will be required later for **OpenShift Virtualization** and **IBM Fusion Data Access for SAN**. Their sizing and configuration are outside the scope of the base OpenShift installation prerequisites.
