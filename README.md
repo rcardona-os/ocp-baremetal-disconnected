@@ -83,7 +83,19 @@ The selected rendezvous address will later be configured in **agent-config.yaml*
 
 When DHCP is used, no static networkConfig is required in **agent-config.yaml**
 
+## DNS
 
+Forward DNS resolution must be available before starting the installation.
+
+At minimum, prepare records for:
+
+```text
+api.<cluster-name>.<base-domain>
+api-int.<cluster-name>.<base-domain>
+*.apps.<cluster-name>.<base-domain>
+```
+
+DNS resolution should also be available for the individual control plane and worker nodes.
 
 
 
