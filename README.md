@@ -8,10 +8,9 @@ This repository contains the configuration, scripts, and documentation required 
 - [Architecture Overview](#architecture-overview)
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
-- [Step 1: Mirroring Content](#step-1-mirroring-content)
-- [Step 2: Deploying the Local Assisted Installer](#step-2-deploying-the-local-assisted-installer)
-- [Step 3: Cluster Configuration](#step-3-cluster-configuration)
-- [Step 4: Installation](#step-4-installation)
+- [Step 1: Deploying the Local Assisted Installer](1-deploying-assisted-installer.md)
+- [Step 2: Cluster Configuration](#step-2-cluster-configuration)
+- [Step 3: Installation](#step-3-installation)
 - [Post-Installation (Day 2)](#post-installation-day-2)
 - [Troubleshooting](#troubleshooting)
 
