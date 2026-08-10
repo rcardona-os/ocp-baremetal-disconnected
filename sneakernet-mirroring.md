@@ -52,9 +52,7 @@ Once that final step is complete, your internal registry is fully populated. You
 ---
 
 99. Apply the Configuration to the Cluster (Optional : Post-Install/Day 2) 
-Once oc-mirror successfully pushes the images to your internal registry, it automatically generates a results-xxx directory inside your working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files).
-
-  If you are using the Assisted Installer, you will need to apply these manifests to your cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from your internal registry instead of the internet.
+Once oc-mirror successfully pushes the images to your internal registry, it automatically generates a results-xxx directory inside your working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files). If you are using the Assisted Installer, you will need to apply these manifests to your cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from your internal registry instead of the internet.
 
   ```bash
   # Navigate to the generated results directory
