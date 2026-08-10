@@ -174,7 +174,7 @@ Before starting the installation, validate both forward and reverse resolution:
 Forward and reverse DNS should return the expected hostname/IP relationship.
 
 
-For OCP 4.21 with Agent-based Installer and `platform: none`, Red Hat explicitly requires reverse DNS for the Kubernetes API, control-plane nodes and compute nodes; the application wildcard does **not** require a PTR. :contentReference[oaicite:0]{index=0}
+🔥 For OCP 4.21 with Agent-based Installer and `platform: none`, Red Hat explicitly requires reverse DNS for the Kubernetes API, control-plane nodes and compute nodes; the application wildcard does **not** require a PTR.
 
 
 ## NTP
