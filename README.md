@@ -165,15 +165,17 @@ Recommended repositories:
 
 Install the basic required utilities:
 
-sudo dnf install -y \
-  container-tools \
-  openssl \
-  jq \
-  curl \
-  wget \
-  tar \
-  gzip \
-  bind-utils
+  ```bash
+  sudo dnf install -y \
+    container-tools \
+    openssl \
+    jq \
+    curl \
+    wget \
+    tar \
+    gzip \
+    bind-utils
+  ```
 
 The host used to download the OpenShift content must have access to the Red Hat container registries.
 
