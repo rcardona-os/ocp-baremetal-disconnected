@@ -154,7 +154,7 @@ Internet access from the OpenShift nodes is not required if the deployment will 
 
 ## Mirror preparation host (optional)
 
-Navigate to this produce to configure it [HERE](cluster-registry/mirror-registry.commons.md)
+Navigate to this produce to configure it [HERE](cluster-registry/mirror-registry-commons.md)
 
 
 ## Bare-metal server preparation
