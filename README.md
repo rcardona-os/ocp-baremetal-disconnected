@@ -33,14 +33,61 @@ This repository contains the configuration, scripts, and documentation required 
 
 Before beginning the installation, ensure the following infrastructure and requirements are met:
 
-1. **Bastion Host:** A machine with internet access to download images, and network access to the disconnected environment.
-2. **Mirror Registry:** An existing, running container registry in the disconnected network.
-3. **DNS/DHCP Services:** Pre-configured DNS records for API, Ingress, and node hostnames, plus DHCP for IP allocation (if not using static IPs).
-4. **Pull Secret:** A valid Red Hat pull secret (downloaded from Red Hat Hybrid Cloud Console).
-5. **Tools Installed on Bastion:**
-   - `oc` (OpenShift CLI)
-   - `oc-mirror` plugin
-   - `podman` or `docker`
+# Prerequisites
+
+This procedure describes the installation of **Red Hat OpenShift Container Platform 4.21.26** on bare-metal infrastructure in a **disconnected environment**, using the **Agent-based Installer**.
+
+The deployment assumes that DHCP is available for the OpenShift nodes.
+
+## Infrastructure
+
+The following infrastructure must be available before starting the installation:
+
+- 3 bare-metal control plane nodes.
+- 2 or more bare-metal worker nodes.
+- DHCP service available on the machine network.
+- DNS service accessible from all cluster nodes.
+- NTP service accessible from all cluster nodes.
+- A container registry accessible from all OpenShift nodes.
+- A RHEL 9 system for preparing and mirroring the OpenShift content.
+- A mechanism to boot the generated Agent ISO on every bare-metal server:
+  - BMC virtual media, or
+  - physical media, or
+  - PXE/HTTP boot if available.
+- API and application ingress load balancing infrastructure, when using `platform: none`.
+
+For this project, additional worker capacity will be required later for **OpenShift Virtualization** and **IBM Fusion Data Access for SAN**. Their sizing and configuration are outside the scope of the base OpenShift installation prerequisites.
+
+## DHCP
+
+DHCP must provide network configuration to every OpenShift node.
+
+At minimum, each node must receive:
+
+- IP address
+- subnet mask/prefix
+- default gateway
+- DNS server(s)
+
+It is strongly recommended to use **DHCP reservations** so that each OpenShift node consistently receives the same IP address.
+
+The IP address of one of the control plane nodes must be known in advance. This node will become the temporary **rendezvous host** during the Agent-based installation.
+
+Example:
+
+```text
+master01 -> 192.168.10.21
+master02 -> 192.168.10.22
+master03 -> 192.168.10.23
+```
+
+The selected rendezvous address will later be configured in **agent-config.yaml**.
+
+When DHCP is used, no static networkConfig is required in **agent-config.yaml**
+
+
+
+
 
 ---
 
