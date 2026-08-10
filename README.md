@@ -1,5 +1,5 @@
 # Red Hat Openshift Cluster
-# Baremetal Installation with Assisted Installed
+### Baremetal Installation with Assisted Installed
 
 This repository contains the configuration, scripts, and documentation required to deploy a Red Hat OpenShift Container Platform (OCP) cluster in a disconnected (air-gapped) environment using the local Assisted Installer.
 
