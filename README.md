@@ -23,9 +23,9 @@ This repository contains the configuration, scripts, and documentation required 
 
 *(Provide a brief overview of your deployment architecture here. E.g., Number of control plane/compute nodes, network topology, and the location of the Bastion host and Mirror Registry.)*
 
-* **OCP Version:** `4.x.x`
-* **Infrastructure Provider:** `Bare Metal / vSphere / etc.`
-* **Registry Solution:** `Quay / Nexus / Red Hat Mirror Registry`
+* **OCP Version:** `4.21.26`
+* **Infrastructure Provider:** `Bare Metal`
+* **Registry Solution:** `Red Hat Public Registries / Private Local Mirrored Registry`
 
 ---
 
