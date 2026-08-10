@@ -56,14 +56,14 @@ Once oc-mirror successfully pushes the images to your internal registry, it auto
 
 If you are using the Assisted Installer, you will need to apply these manifests to your cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from your internal registry instead of the internet.
 
-```bash
-# Navigate to the generated results directory
-cd oc-mirror-workspace/results-*/
+  ```bash
+  # Navigate to the generated results directory
+  cd oc-mirror-workspace/results-*/
 
-# Apply the Image Content Source Policy (tells nodes where to redirect pulls)
-oc apply -f imageContentSourcePolicy.yaml 
-# OR in newer OCP versions: oc apply -f imageDigestMirrorSet.yaml
+  # Apply the Image Content Source Policy (tells nodes where to redirect pulls)
+  oc apply -f imageContentSourcePolicy.yaml 
+  # OR in newer OCP versions: oc apply -f imageDigestMirrorSet.yaml
 
-# Apply the Catalog Source (makes the mirrored Operators appear in OperatorHub)
-oc apply -f catalogSource-cs-redhat-operator-index.yaml
-```
+  # Apply the Catalog Source (makes the mirrored Operators appear in OperatorHub)
+  oc apply -f catalogSource-cs-redhat-operator-index.yaml
+  ```
