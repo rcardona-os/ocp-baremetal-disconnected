@@ -191,9 +191,8 @@ Consistent time synchronization is required across:
 - Control plane nodes
 - Worker nodes
 - Mirror registry
-- Istallation host
+- Installation host
 - DNS/load-balancer infrastructure
-
 
 ## Network connectivity
 
