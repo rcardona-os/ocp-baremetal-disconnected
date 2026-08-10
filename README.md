@@ -208,6 +208,86 @@ Verify the binaries before starting:
   oc mirror --v2 --help
   ```
 
+Credentials
+
+The following credentials must be available:
+
+- Red Hat OpenShift pull secret.
+- Credentials with write access to the disconnected mirror registry.
+- Credentials with read access to the mirror registry for the OpenShift cluster.
+- SSH public key for access to the RHCOS core user.
+
+The registry credentials used for mirroring should not be reused as the cluster's pull-only credentials.
+
+## Mirror registry
+
+The disconnected environment must provide a container registry capable of storing the OpenShift release images.
+
+The registry must:
+
+- be reachable from every OpenShift node
+- have a stable FQDN
+- use TLS
+- use persistent storage
+- provide sufficient capacity for the OpenShift release and required Operators
+- support authentication
+- remain available after the cluster installation
+
+Example:
+
+  ```text
+  registry.example.com:8443
+  ```
+
+## Bare-metal server preparation
+
+Before installation:
+
+- Enable CPU virtualization extensions in the server BIOS/UEFI.
+- Confirm that the intended RHCOS installation disk is visible.
+- Record the MAC address of the network interface used by each node.
+- Confirm DHCP operation from the intended OpenShift network.
+- Confirm DNS and NTP connectivity.
+- Confirm that each server can boot the Agent ISO.
+- Confirm access to the server BMC or remote console where available.
+
+The RHCOS installation disk must be clearly identifiable, particularly if additional SAN storage is visible to the servers.
+
+SAN LUNs intended for IBM Fusion should preferably not be presented to the nodes during the initial OpenShift installation.
+
+## Information to collect
+
+Before proceeding with the installation, collect the following information:
+
+  ```text
+  Cluster name:
+  Base domain:
+
+  Machine network:
+  DHCP range:
+  Default gateway:
+  DNS server(s):
+  NTP server(s):
+
+  API address:
+  Ingress address:
+
+  Mirror registry FQDN:
+  Mirror registry port:
+
+  Control plane node MAC addresses:
+  Worker node MAC addresses:
+
+  Rendezvous control plane node:
+  Rendezvous IP:
+
+  RHCOS installation disk for each node:
+  ```
+
+The rendezvousIP must be reserved and known before generating the Agent ISO.
+
+
+If the registry uses a private or self-signed CA, its CA certificate must be available so it can later be added to the OpenShift trust bundle.
 
 
 
