@@ -4,7 +4,7 @@ Red Hat specifically designed the oc-mirror tool to handle this exact scenario u
 
 ### ⚠️ Prerequisites & Storage Warning
 
-Before beginning the sneakernet process, ensure your intermediary media (USB drive, external HDD) has sufficient storage capacity. While a base OpenShift release may only take a few gigabytes, adding operators (like OpenShift Data Foundation, OpenShift Virtualization, or Pipelines) can quickly inflate the archive size. **We recommend a drive with at least 100GB to 250GB of free space** depending on how many operators you mirror.
+Before beginning the sneakernet process, ensure your intermediary media (USB drive, external HDD) has sufficient storage capacity. While a base OpenShift release may only take a few gigabytes, adding operators (like OpenShift Data Foundation, OpenShift Virtualization, or Pipelines) can quickly inflate the archive size. **It is recommend a drive with at least 100GB to 250GB of free space** depending on how many operators you mirror.
 
 0. Preparing the images
 
