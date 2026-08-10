@@ -2,6 +2,29 @@
 
 Red Hat specifically designed the oc-mirror tool to handle this exact scenario using a "mirror-to-disk" workflow. Instead of syncing images over a network to a registry, you pack the OpenShift release, operators, and required images into a massive archive file directly onto an intermediary storage device (like a high-capacity USB drive or external hard disk).Here is how that physical transfer workflow operates in practice:
 
+### ⚠️ Prerequisites & Storage Warning
+
+Before beginning the sneakernet process, ensure your intermediary media (USB drive, external HDD) has sufficient storage capacity. While a base OpenShift release may only take a few gigabytes, adding operators (like OpenShift Data Foundation, OpenShift Virtualization, or Pipelines) can quickly inflate the archive size. **We recommend a drive with at least 100GB to 250GB of free space** depending on how many operators you mirror.
+
+0. Preparing the images
+
+You will also need an `imageset-config.yaml` file to define exactly what you want to mirror. If you don't have one yet, here is a basic example to get you started:
+
+  ```yaml
+  # example-imageset-config.yaml
+  kind: ImageSetConfiguration
+  apiVersion: mirror.openshift.io/v1alpha2
+  mirror:
+    platform:
+      channels:
+      - name: stable-4.21.26
+        type: ocp
+    operators:
+      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.14
+        packages:
+          - name: advanced-cluster-management
+          - name: odf-operator
+  ```
 
 1. Mirror to Disk (Connected Environment):Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
 
