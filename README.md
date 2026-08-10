@@ -263,11 +263,10 @@ Before proceeding with the installation, collect the following information:
 
   RHCOS installation disk for each node:
   ```
-  
+
 The rendezvousIP must be reserved and known before generating the Agent ISO.
 
 If the registry uses a private or self-signed CA, its CA certificate must be available so it can later be added to the OpenShift trust bundle.
-
 
 ---
 
