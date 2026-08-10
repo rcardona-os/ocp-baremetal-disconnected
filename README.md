@@ -9,8 +9,8 @@ This repository contains the configuration, scripts, and documentation required 
 - [Prerequisites](#prerequisites)
 - [Repository Structure](#repository-structure)
 - [Step 1: Deploying the Local Assisted Installer](1-deploying-assisted-installer.md)
-- [Step 2: Cluster Configuration](#step-2-cluster-configuration)
-- [Step 3: Installation](#step-3-installation)
+- [Step 2: Cluster Configuration](2-cluster-configuration.md)
+- [Step 3: Cluster Installation](3-cluster-installation.md)
 - [Post-Installation (Day 2)](#post-installation-day-2)
 - [Troubleshooting](#troubleshooting)
 
@@ -263,41 +263,18 @@ Before proceeding with the installation, collect the following information:
 
   RHCOS installation disk for each node:
   ```
-
+  
 The rendezvousIP must be reserved and known before generating the Agent ISO.
-
 
 If the registry uses a private or self-signed CA, its CA certificate must be available so it can later be added to the OpenShift trust bundle.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---
 
-### Repository Structure
+### Sections
 
-
-```text
-├── manifests/            # Custom Kubernetes manifests applied during Day-0/Day-1
-├── mirror/               # Scripts and ImageSetConfigurations for oc-mirror
-│   └── imageset-config.yaml
-├── scripts/              # Helper scripts for automation
-│   ├── 01-mirror-images.sh
-│   ├── 02-setup-ai.sh
-│   └── 03-generate-iso.sh
-├── assisted-installer/   # Configuration for deploying the local AI service
-└── README.md             # This file
+- [Step 1: Deploying the Local Assisted Installer](1-deploying-assisted-installer.md)
+- [Step 2: Cluster Configuration](2-cluster-configuration.md)
+- [Step 3: Cluster Installation](3-cluster-installation.md)
+- [Post-Installation (Day 2)](#post-installation-day-2)
+- [Troubleshooting](#troubleshooting)
