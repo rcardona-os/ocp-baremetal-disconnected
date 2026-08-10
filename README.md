@@ -97,6 +97,77 @@ api-int.<cluster-name>.<base-domain>
 
 DNS resolution should also be available for the individual control plane and worker nodes.
 
+Example:
+
+```text
+api.ocp.example.com
+api-int.ocp.example.com
+*.apps.ocp.example.com
+
+master01.ocp.example.com
+master02.ocp.example.com
+master03.ocp.example.com
+
+worker01.ocp.example.com
+worker02.ocp.example.com
+worker03.ocp.example.com
+```
+
+Where possible, configure DHCP to provide the expected hostname to each node.
+
+## NTP
+
+All OpenShift nodes must have access to a reliable NTP source.
+
+Consistent time synchronization is required across:
+
+control plane nodes
+worker nodes
+mirror registry
+installation host
+DNS/load-balancer infrastructure
+
+
+## Network connectivity
+
+All OpenShift nodes must be able to communicate with each other over the cluster network.
+
+During the Agent-based installation, every node must also be able to reach the rendezvous host on:
+
+```text
+TCP/8090
+```
+
+Port 8090 is used by the Assisted Service during node discovery and installation and is only required during the installation process.
+
+The nodes must also be able to reach:
+
+the mirror registry
+DNS servers
+NTP servers
+API load balancer
+application ingress load balancer
+
+Internet access from the OpenShift nodes is not required.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ---
