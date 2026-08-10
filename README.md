@@ -185,22 +185,28 @@ Required installation tools
 
 The following tools are required:
 
-openshift-install
-oc
-oc-mirror
+  ```bash
+  openshift-install
+  oc
+  oc-mirror
+  ```
 
 For this deployment:
 
-OpenShift Container Platform: 4.21.26
-openshift-install:            4.21.26
-oc:                           4.21.x
-oc-mirror:                    current oc-mirror v2
+  ```text
+  OpenShift Container Platform: 4.21.26
+  openshift-install:            4.21.26
+  oc:                           4.21.x
+  oc-mirror:                    current oc-mirror v2
+  ```
 
 Verify the binaries before starting:
 
-openshift-install version
-oc version --client
-oc mirror --v2 --help
+  ```bash
+  openshift-install version
+  oc version --client
+  oc mirror --v2 --help
+  ```
 
 
 
