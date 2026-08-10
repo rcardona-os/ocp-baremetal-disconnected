@@ -33,7 +33,7 @@ You will also need an `imageset-config.yaml` file to define exactly what you wan
 oc mirror --config imageset-config.yaml file:///mnt/usb-drive/mirror-archive
 ```
 
-This downloads and packages all requested container images, along with the metadata, into a .tar archive on the drive.
+💥 This downloads and packages all requested container images, along with the metadata, into a .tar archive on the drive.
 
 
 2. The Physical Air-Gap Transfer:The Sneakernet.You safely unmount the USB drive, physically walk it across the facility—often passing it through security scanners or malware kiosks as required by the organization—and plug it into a Bastion host sitting entirely inside the restricted network.
