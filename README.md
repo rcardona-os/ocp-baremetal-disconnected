@@ -148,13 +148,17 @@ The API load-balancer address must also provide reverse resolution for the API e
 
 For example:
 
-192.168.10.10 -> api.ocp.example.com
+  ```text
+  192.168.10.10 -> api.ocp.example.com
+  ```
 
-api-int.<cluster-name>.<base-domain> normally resolves to the same API load-balancer address and is used for internal cluster communication.
+**api-int.<cluster-name>.<base-domain>** normally resolves to the same API load-balancer address and is used for internal cluster communication.
 
 A PTR record is not required for the OpenShift application wildcard:
 
-*.apps.<cluster-name>.<base-domain>
+  ```text
+  *.apps.<cluster-name>.<base-domain>
+  ```
 
 Because DHCP is used in this deployment, it is recommended that DHCP provides a stable hostname and address to each node, preferably using DHCP reservations based on MAC address.
 
@@ -172,7 +176,6 @@ Before starting the installation, validate both forward and reverse resolution:
   ```
 
 Forward and reverse DNS should return the expected hostname/IP relationship.
-
 
 🔥 For OCP 4.21 with Agent-based Installer and `platform: none`, Red Hat explicitly requires reverse DNS for the Kubernetes API, control-plane nodes and compute nodes; the application wildcard does **not** require a PTR.
 
