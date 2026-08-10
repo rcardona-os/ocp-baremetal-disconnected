@@ -136,13 +136,15 @@ All worker nodes
 
 Example:
 
-192.168.10.21 -> master01.ocp.example.com
-192.168.10.22 -> master02.ocp.example.com
-192.168.10.23 -> master03.ocp.example.com
+  ```text
+  192.168.10.21 -> master01.ocp.example.com
+  192.168.10.22 -> master02.ocp.example.com
+  192.168.10.23 -> master03.ocp.example.com
 
-192.168.10.31 -> worker01.ocp.example.com
-192.168.10.32 -> worker02.ocp.example.com
-192.168.10.33 -> worker03.ocp.example.com
+  192.168.10.31 -> worker01.ocp.example.com
+  192.168.10.32 -> worker02.ocp.example.com
+  192.168.10.33 -> worker03.ocp.example.com
+  ```
 
 The API load-balancer address must also provide reverse resolution for the API endpoint.
 
