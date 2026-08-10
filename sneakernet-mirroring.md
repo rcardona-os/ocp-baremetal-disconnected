@@ -47,3 +47,22 @@ This downloads and packages all requested container images, along with the metad
 
 
 Once that final step is complete, your internal registry is fully populated. You then point your Assisted Installer (and the resulting OpenShift cluster) at that internal registry, and the installation proceeds completely isolated from the outside world.
+
+
+---
+
+99. Apply the Configuration to the Cluster (Optional : Post-Install/Day 2) 
+Once oc-mirror successfully pushes the images to your internal registry, it automatically generates a results-xxx directory inside your working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files).
+
+If you are using the Assisted Installer, you will need to apply these manifests to your cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from your internal registry instead of the internet.
+
+Bash
+# Navigate to the generated results directory
+cd oc-mirror-workspace/results-*/
+
+# Apply the Image Content Source Policy (tells nodes where to redirect pulls)
+oc apply -f imageContentSourcePolicy.yaml 
+# OR in newer OCP versions: oc apply -f imageDigestMirrorSet.yaml
+
+# Apply the Catalog Source (makes the mirrored Operators appear in OperatorHub)
+oc apply -f catalogSource-cs-redhat-operator-index.yaml
