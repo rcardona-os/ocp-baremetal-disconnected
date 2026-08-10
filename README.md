@@ -88,35 +88,94 @@ When DHCP is used, no static networkConfig is required in **agent-config.yaml**.
 
 ## DNS
 
-Forward DNS resolution must be available before starting the installation.
+DNS must be configured and operational before starting the installation.
 
-At minimum, prepare records for:
+The following components require forward DNS resolution:
 
-  ```text
-  api.<cluster-name>.<base-domain>
-  api-int.<cluster-name>.<base-domain>
-  *.apps.<cluster-name>.<base-domain>
-  ```
+- Kubernetes API
+- Internal Kubernetes API
+- OpenShift application wildcard
+- Control plane nodes
+- Worker nodes
+- Mirror registry
 
-DNS resolution should also be available for the individual control plane and worker nodes.
+At minimum, create the following records:
+
+```text
+api.<cluster-name>.<base-domain>
+api-int.<cluster-name>.<base-domain>
+*.apps.<cluster-name>.<base-domain>
+```
+
+Each control plane and worker node should also have an individual A record.
 
 Example:
 
   ```text
-  api.ocp.example.com
-  api-int.ocp.example.com
-  *.apps.ocp.example.com
+  api.ocp.example.com           -> 192.168.10.10
+  api-int.ocp.example.com       -> 192.168.10.10
+  *.apps.ocp.example.com        -> 192.168.10.11
 
-  master01.ocp.example.com
-  master02.ocp.example.com
-  master03.ocp.example.com
+  master01.ocp.example.com      -> 192.168.10.21
+  master02.ocp.example.com      -> 192.168.10.22
+  master03.ocp.example.com      -> 192.168.10.23
 
-  worker01.ocp.example.com
-  worker02.ocp.example.com
-  worker03.ocp.example.com
+  worker01.ocp.example.com      -> 192.168.10.31
+  worker02.ocp.example.com      -> 192.168.10.32
+  worker03.ocp.example.com      -> 192.168.10.33
   ```
 
-Where possible, configure DHCP to provide the expected hostname to each node.
+- Reverse DNS
+
+Reverse DNS resolution using PTR records must also be configured for:
+
+Kubernetes API
+Internal Kubernetes API
+All control plane nodes
+All worker nodes
+
+Example:
+
+192.168.10.21 -> master01.ocp.example.com
+192.168.10.22 -> master02.ocp.example.com
+192.168.10.23 -> master03.ocp.example.com
+
+192.168.10.31 -> worker01.ocp.example.com
+192.168.10.32 -> worker02.ocp.example.com
+192.168.10.33 -> worker03.ocp.example.com
+
+The API load-balancer address must also provide reverse resolution for the API endpoint.
+
+For example:
+
+192.168.10.10 -> api.ocp.example.com
+
+api-int.<cluster-name>.<base-domain> normally resolves to the same API load-balancer address and is used for internal cluster communication.
+
+A PTR record is not required for the OpenShift application wildcard:
+
+*.apps.<cluster-name>.<base-domain>
+
+Because DHCP is used in this deployment, it is recommended that DHCP provides a stable hostname and address to each node, preferably using DHCP reservations based on MAC address.
+
+Before starting the installation, validate both forward and reverse resolution:
+
+  ```bash
+  dig api.ocp.example.com +short
+  dig api-int.ocp.example.com +short
+
+  dig master01.ocp.example.com +short
+  dig worker01.ocp.example.com +short
+
+  dig -x 192.168.10.21 +short
+  dig -x 192.168.10.31 +short
+  ```
+
+Forward and reverse DNS should return the expected hostname/IP relationship.
+
+
+For OCP 4.21 with Agent-based Installer and `platform: none`, Red Hat explicitly requires reverse DNS for the Kubernetes API, control-plane nodes and compute nodes; the application wildcard does **not** require a PTR. :contentReference[oaicite:0]{index=0}
+
 
 ## NTP
 
