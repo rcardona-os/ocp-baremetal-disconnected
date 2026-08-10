@@ -1,8 +1,5 @@
 # Red Hat Openshift Cluster Baremetal Installation with Assisted Installed
 
-
-# OpenShift Disconnected Installation via Assisted Installer
-
 This repository contains the configuration, scripts, and documentation required to deploy a Red Hat OpenShift Container Platform (OCP) cluster in a disconnected (air-gapped) environment using the local Assisted Installer.
 
 ### Table of Contents
@@ -43,6 +40,7 @@ The deployment assumes that DHCP is available for the OpenShift nodes.
 
 The following infrastructure must be available before starting the installation:
 
+- Bastion Host
 - 3 bare-metal control plane nodes.
 - 2 or more bare-metal worker nodes.
 - DHCP service available on the machine network.
@@ -55,6 +53,10 @@ The following infrastructure must be available before starting the installation:
 - API and application ingress load balancing infrastructure, when using `platform: none`.
 
 For this project, additional worker capacity will be required later for **OpenShift Virtualization** and **IBM Fusion Data Access for SAN**. Their sizing and configuration are outside the scope of the base OpenShift installation prerequisites.
+
+## Bastion Host
+
+A machine with internet access to download images, and network access to the disconnected environment. Any type of linux base system will serve the purpose, but it is worth to mention that this procesure has been tested on RHEL9.
 
 ## DHCP
 
@@ -73,15 +75,15 @@ The IP address of one of the control plane nodes must be known in advance. This 
 
 Example:
 
-```text
-master01 -> 192.168.10.21
-master02 -> 192.168.10.22
-master03 -> 192.168.10.23
-```
+  ```text
+  master01 -> 192.168.10.21
+  master02 -> 192.168.10.22
+  master03 -> 192.168.10.23
+  ```
 
 The selected rendezvous address will later be configured in **agent-config.yaml**.
 
-When DHCP is used, no static networkConfig is required in **agent-config.yaml**
+When DHCP is used, no static networkConfig is required in **agent-config.yaml**.
 
 ## DNS
 
@@ -89,29 +91,29 @@ Forward DNS resolution must be available before starting the installation.
 
 At minimum, prepare records for:
 
-```text
-api.<cluster-name>.<base-domain>
-api-int.<cluster-name>.<base-domain>
-*.apps.<cluster-name>.<base-domain>
-```
+  ```text
+  api.<cluster-name>.<base-domain>
+  api-int.<cluster-name>.<base-domain>
+  *.apps.<cluster-name>.<base-domain>
+  ```
 
 DNS resolution should also be available for the individual control plane and worker nodes.
 
 Example:
 
-```text
-api.ocp.example.com
-api-int.ocp.example.com
-*.apps.ocp.example.com
+  ```text
+  api.ocp.example.com
+  api-int.ocp.example.com
+  *.apps.ocp.example.com
 
-master01.ocp.example.com
-master02.ocp.example.com
-master03.ocp.example.com
+  master01.ocp.example.com
+  master02.ocp.example.com
+  master03.ocp.example.com
 
-worker01.ocp.example.com
-worker02.ocp.example.com
-worker03.ocp.example.com
-```
+  worker01.ocp.example.com
+  worker02.ocp.example.com
+  worker03.ocp.example.com
+  ```
 
 Where possible, configure DHCP to provide the expected hostname to each node.
 
@@ -121,11 +123,11 @@ All OpenShift nodes must have access to a reliable NTP source.
 
 Consistent time synchronization is required across:
 
-control plane nodes
-worker nodes
-mirror registry
-installation host
-DNS/load-balancer infrastructure
+- Control plane nodes
+- Worker nodes
+- Mirror registry
+- Istallation host
+- DNS/load-balancer infrastructure
 
 
 ## Network connectivity
@@ -134,23 +136,69 @@ All OpenShift nodes must be able to communicate with each other over the cluster
 
 During the Agent-based installation, every node must also be able to reach the rendezvous host on:
 
-```text
-TCP/8090
-```
+  ```text
+  TCP/8090
+  ```
 
 Port 8090 is used by the Assisted Service during node discovery and installation and is only required during the installation process.
 
 The nodes must also be able to reach:
-
-the mirror registry
+Tthe mirror registry (in case of disconneceted deployment)
 DNS servers
 NTP servers
 API load balancer
-application ingress load balancer
+Application ingress load balancer
 
-Internet access from the OpenShift nodes is not required.
+Internet access from the OpenShift nodes is not required if the deployment will be disconnected.
 
+## Mirror preparation host (optional)
 
+A RHEL 9 x86_64 system is required to prepare the disconnected installation content.
+
+Recommended repositories:
+
+  ```bash
+  sudo subscription-manager repos --disable="*" \
+    --enable="rhel-9-for-x86_64-baseos-rpms" \
+    --enable="rhel-9-for-x86_64-appstream-rpms"
+  ```
+
+Install the basic required utilities:
+
+sudo dnf install -y \
+  container-tools \
+  openssl \
+  jq \
+  curl \
+  wget \
+  tar \
+  gzip \
+  bind-utils
+
+The host used to download the OpenShift content must have access to the Red Hat container registries.
+
+If the final mirror registry is located inside the disconnected environment, the mirrored content must be transferred using removable storage or another approved transfer mechanism.
+
+Required installation tools
+
+The following tools are required:
+
+openshift-install
+oc
+oc-mirror
+
+For this deployment:
+
+OpenShift Container Platform: 4.21.26
+openshift-install:            4.21.26
+oc:                           4.21.x
+oc-mirror:                    current oc-mirror v2
+
+Verify the binaries before starting:
+
+openshift-install version
+oc version --client
+oc mirror --v2 --help
 
 
 
