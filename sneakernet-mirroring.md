@@ -443,12 +443,14 @@ If the command returns an authentication or authorization error, verify that:
 
 ----
 
-### 2. Mirror to Disk (Connected Environment):Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
+### 2. Mirror to Disk (media, directory on OS, etc)
 
-```bash
-# Note the file:// protocol instead of docker://
-oc mirror --config imageset-config.yaml file:///mnt/usb-drive/mirror-archive
-```
+Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
+
+  ```bash
+  # Note the file:// protocol instead of docker://
+  oc mirror --config imageset-config.yaml file:///mnt/usb-drive/mirror-archive
+  ```
 
 💥 This downloads and packages all requested container images, along with the metadata, into a .tar archive on the drive.
 
