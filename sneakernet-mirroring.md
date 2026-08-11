@@ -468,7 +468,11 @@ No internet access, from the internal Bastion host, oc-mirror is run again. This
 
 
   ```bash
-  oc mirror --from file:///mnt/usb-drive/mirror-archive docker://internal-registry.local:5000
+  oc mirror --v2 \
+  --config imageset-config.yaml \
+  --from file:///mnt/usb-drive/mirror-archive \
+  --authfile "${REGISTRY_AUTH_FILE}" \
+  docker://internal-registry.local:5000
   ```
 
 
