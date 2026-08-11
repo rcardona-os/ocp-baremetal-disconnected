@@ -8,8 +8,6 @@ Before beginning the sneakernet process, ensure your intermediary media (USB dri
 
 0. Installating binaries and dependencies
 
-#### Steps
-
 - Install depencides
   ```bash
   sudo dnf install -y \
