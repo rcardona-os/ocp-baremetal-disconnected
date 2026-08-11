@@ -32,10 +32,22 @@ Before beginning the sneakernet process, ensure your intermediary media (USB dri
 - Installing oc binary
   ```bash    
   tar xvzf openshift-client-linux.tar.gz
-      
   sudo mv oc /usr/local/bin/oc
-
   sudo chmod +x /usr/local/bin/oc
+  ```
+
+- Install the `oc-mirror` plugin:
+  ```bash
+  tar xvzf oc-mirror.tar.gz
+  sudo install -m 0755 oc-mirror /usr/local/bin/oc-mirror
+  umask 0022
+  ```
+
+- Verify the tool
+  ```bash
+  oc version --client
+  oc mirror --v2 --help
+  openshift-install version
   ```
 
 ### 1. Preparing the images
@@ -130,192 +142,196 @@ and IBM explicitly lists the required packages as:
 
 #### Complete ImageSetConfiguration for this installation
 
+  ```bash
+  cat imageset-config.yaml
+  ```
+
   ``` yaml
-apiVersion: mirror.openshift.io/v2alpha1
-kind: ImageSetConfiguration
+  apiVersion: mirror.openshift.io/v2alpha1
+  kind: ImageSetConfiguration
 
-mirror:
+  mirror:
 
-  # =========================================================
-  # OpenShift Container Platform 4.21.26
-  # =========================================================
-  platform:
-    architectures:
-      - amd64
+    # =========================================================
+    # OpenShift Container Platform 4.21.26
+    # =========================================================
+    platform:
+      architectures:
+        - amd64
 
-    channels:
-      - name: stable-4.21
-        type: ocp
-        minVersion: "4.21.26"
-        maxVersion: "4.21.26"
+      channels:
+        - name: stable-4.21
+          type: ocp
+          minVersion: "4.21.26"
+          maxVersion: "4.21.26"
 
-    # Update graph is not required for the initial installation.
-    graph: false
-
-
-  # =========================================================
-  # Operator catalogs
-  # =========================================================
-  operators:
-
-    # ---------------------------------------------------------
-    # Red Hat Operators
-    # ---------------------------------------------------------
-    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
-      packages:
-
-        # OpenShift Virtualization
-        - name: kubevirt-hyperconverged
-
-        # NUMA-aware scheduling
-        - name: numaresources-operator
-
-        # Required by IBM Fusion Access for SAN / Storage Scale
-        - name: kernel-module-management
-
-        # Node networking: bridges, bonds, VLANs, etc.
-        - name: kubernetes-nmstate-operator
-
-        # Required by IBM Fusion Data Foundation
-        - name: local-storage-operator
-
-        # Required by IBM Fusion Data Foundation
-        - name: lvms-operator
-
-
-    # ---------------------------------------------------------
-    # IBM Fusion Software 2.13 base
-    # ---------------------------------------------------------
-    - catalog: icr.io/cpopen/isf-operator-software-catalog@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
-      packages:
-        - name: isf-operator
-          channels:
-            - name: v2.0
-              minVersion: "2.13.0"
-              maxVersion: "2.13.0"
-
-
-    # ---------------------------------------------------------
-    # IBM Fusion Usage Metering Service
-    # Required component of IBM Fusion
-    # ---------------------------------------------------------
-    - catalog: icr.io/cpopen/ibm-usage-metering-operator-catalog@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
-      full: true
-      packages:
-        - name: ibm-usage-metering-operator
-          channels:
-            - name: v1.0
-
-
-    # ---------------------------------------------------------
-    # IBM Fusion Data Foundation 4.21
-    #
-    # Fusion Access for SAN is integrated with FDF on OCP 4.21.
-    # ---------------------------------------------------------
-    - catalog: icr.io/cpopen/isf-data-foundation-catalog:v4.21
-      packages:
-
-        - name: cephcsi-operator
-
-        - name: mcg-operator
-
-        - name: ocs-operator
-
-        - name: odf-csi-addons-operator
-
-        - name: odf-multicluster-orchestrator
-
-        - name: odf-operator
-
-        - name: odr-cluster-operator
-
-        - name: odr-hub-operator
-
-        - name: ocs-client-operator
-
-        - name: odf-prometheus-operator
-
-        - name: recipe
-
-        - name: rook-ceph-operator
-
-        - name: odf-dependencies
-
-        - name: odf-external-snapshotter-operator
-
-        # IBM Storage Scale / CNSA integration
-        - name: ibm-spectrum-scale-operator
-
-        - name: cnsa-dependencies
-
-
-  # =========================================================
-  # Additional images
-  # =========================================================
-  additionalImages:
-
-    # ---------------------------------------------------------
-    # IBM Fusion Software 2.13 catalog
-    # ---------------------------------------------------------
-    - name: icr.io/cpopen/isf-operator-software-catalog:2.13.0-13849@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
-
-
-    # ---------------------------------------------------------
-    # IBM Fusion Usage Metering catalog
-    # ---------------------------------------------------------
-    - name: icr.io/cpopen/ibm-usage-metering-operator-catalog:2.13.0-24525@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
+      # Update graph is not required for the initial installation.
+      graph: false
 
 
     # =========================================================
-    # IBM Storage Scale 6.0.1.0
-    #
-    # Required for IBM Fusion Access for SAN on OCP 4.21.
-    # These are pinned to the image digests published by IBM
-    # for Storage Scale 6.0.1.0.
+    # Operator catalogs
     # =========================================================
+    operators:
 
-    # CSI sidecars
-    - name: cp.icr.io/cp/gpfs/csi/csi-attacher:v4.11.0@sha256:b74b05b39501565022883fc128002b4cb857a7bb6c858606bcb3fdedba0b0b80
+      # ---------------------------------------------------------
+      # Red Hat Operators
+      # ---------------------------------------------------------
+      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
+        packages:
 
-    - name: cp.icr.io/cp/gpfs/csi/csi-node-driver-registrar:v2.16.0@sha256:ab482308a4921e28a6df09a16ab99a457e9af9641ff44fb1be1a690d07ce8b70
+          # OpenShift Virtualization
+          - name: kubevirt-hyperconverged
 
-    - name: cp.icr.io/cp/gpfs/csi/csi-provisioner:v6.2.0@sha256:6be9f63ca4caa6c46aae55aa372500949d8a21473d72f819da1f746076b32d4e
+          # NUMA-aware scheduling
+          - name: numaresources-operator
 
-    - name: cp.icr.io/cp/gpfs/csi/csi-resizer:v2.1.0@sha256:589e525cddef6d768e68da1f0bc9ffd0a24bf3add3dd010648eb7189976fde79
+          # Required by IBM Fusion Access for SAN / Storage Scale
+          - name: kernel-module-management
 
-    - name: cp.icr.io/cp/gpfs/csi/csi-snapshotter:v8.5.0@sha256:da081c27e8a6d91f36042c1942362d0515ced8d06e18c11b8f893e58c4d6d797
+          # Node networking: bridges, bonds, VLANs, etc.
+          - name: kubernetes-nmstate-operator
 
-    - name: cp.icr.io/cp/gpfs/csi/ibm-spectrum-scale-csi-driver:v3.1.0@sha256:35c2c45c0a8f6504cf50dda57fd0c827244e822e02febf449a37630fc6d01b9d
+          # Required by IBM Fusion Data Foundation
+          - name: local-storage-operator
 
-    - name: cp.icr.io/cp/gpfs/csi/livenessprobe:v2.18.0@sha256:c4cc074199c045dd73ab85f28897e2a32f4d6f38ffdba4f3b13b8007ccbd3570
-
-
-    # IBM Storage Scale
-    - name: cp.icr.io/cp/gpfs/data-management/ibm-spectrum-scale-daemon:v6.0.1.0@sha256:3651a79cfd42e67416995af3442b667beef09c9c1417e406b7be20cb63497ddf
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-core-init:v6.0.1.0@sha256:1775f4d2c51ae9bef6d0d129c79efcfefb4d6d4008445d57b852d4c4397b2fe2
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-coredns:v6.0.1.0@sha256:781db6ee6019ae2468b57f48abc17033ccfcdb88beb555b2797ee4fe32a2731b
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-grafana-bridge:v6.0.1.0@sha256:3843a5db15d214355d7c80751b7ab771cbaef9be025eea04745386d9210914e5
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-gui:v6.0.1.0@sha256:fd85ae58cfdf4ef48b300f542967a0b2e626ff4015af86a5f31e648b76d11160
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-logs:v6.0.1.0@sha256:16754a6b3e1eaac73a3df6d6ded01d31e0f5d0cc75dc6f30d1cb8043d2dc0685
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-monitor:v6.0.1.0@sha256:a15797ec26b5e6b54de4396ed4fdb9303169908c04337694ff2d2f2e9372df87
-
-    - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-pmcollector:v6.0.1.0@sha256:10dd10e7ab9c32d36b31924c266671573c48fe1fd4c43cb1a6d89d7644482a4c
-
-    - name: cp.icr.io/cp/gpfs/postgres:18.1-alpine3.23@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29
+          # Required by IBM Fusion Data Foundation
+          - name: lvms-operator
 
 
-    # IBM Storage Scale operator components
-    - name: icr.io/cpopen/ibm-spectrum-scale-must-gather:v6.0.1.0@sha256:39d5a03dcc657ce704299767e09408e52be040edf11d8a2cf4b72864178e4535
+      # ---------------------------------------------------------
+      # IBM Fusion Software 2.13 base
+      # ---------------------------------------------------------
+      - catalog: icr.io/cpopen/isf-operator-software-catalog@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
+        packages:
+          - name: isf-operator
+            channels:
+              - name: v2.0
+                minVersion: "2.13.0"
+                maxVersion: "2.13.0"
 
-    - name: icr.io/cpopen/ibm-spectrum-scale-operator-bundle:v6.0.1.0@sha256:b29e753b855f26561dc320c90f70940d96400d79d04f6870a8aef3ca72b6e5f0
 
-    - name: icr.io/cpopen/ibm-spectrum-scale-operator:v6.0.1.0@sha256:5e2095f878f45b561e17fc00725d6ca69653d12f7693d295b0a53a40046f1a45
+      # ---------------------------------------------------------
+      # IBM Fusion Usage Metering Service
+      # Required component of IBM Fusion
+      # ---------------------------------------------------------
+      - catalog: icr.io/cpopen/ibm-usage-metering-operator-catalog@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
+        full: true
+        packages:
+          - name: ibm-usage-metering-operator
+            channels:
+              - name: v1.0
+
+
+      # ---------------------------------------------------------
+      # IBM Fusion Data Foundation 4.21
+      #
+      # Fusion Access for SAN is integrated with FDF on OCP 4.21.
+      # ---------------------------------------------------------
+      - catalog: icr.io/cpopen/isf-data-foundation-catalog:v4.21
+        packages:
+
+          - name: cephcsi-operator
+
+          - name: mcg-operator
+
+          - name: ocs-operator
+
+          - name: odf-csi-addons-operator
+
+          - name: odf-multicluster-orchestrator
+
+          - name: odf-operator
+
+          - name: odr-cluster-operator
+
+          - name: odr-hub-operator
+
+          - name: ocs-client-operator
+
+          - name: odf-prometheus-operator
+
+          - name: recipe
+
+          - name: rook-ceph-operator
+
+          - name: odf-dependencies
+
+          - name: odf-external-snapshotter-operator
+
+          # IBM Storage Scale / CNSA integration
+          - name: ibm-spectrum-scale-operator
+
+          - name: cnsa-dependencies
+
+
+    # =========================================================
+    # Additional images
+    # =========================================================
+    additionalImages:
+
+      # ---------------------------------------------------------
+      # IBM Fusion Software 2.13 catalog
+      # ---------------------------------------------------------
+      - name: icr.io/cpopen/isf-operator-software-catalog:2.13.0-13849@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
+
+
+      # ---------------------------------------------------------
+      # IBM Fusion Usage Metering catalog
+      # ---------------------------------------------------------
+      - name: icr.io/cpopen/ibm-usage-metering-operator-catalog:2.13.0-24525@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
+
+
+      # =========================================================
+      # IBM Storage Scale 6.0.1.0
+      #
+      # Required for IBM Fusion Access for SAN on OCP 4.21.
+      # These are pinned to the image digests published by IBM
+      # for Storage Scale 6.0.1.0.
+      # =========================================================
+
+      # CSI sidecars
+      - name: cp.icr.io/cp/gpfs/csi/csi-attacher:v4.11.0@sha256:b74b05b39501565022883fc128002b4cb857a7bb6c858606bcb3fdedba0b0b80
+
+      - name: cp.icr.io/cp/gpfs/csi/csi-node-driver-registrar:v2.16.0@sha256:ab482308a4921e28a6df09a16ab99a457e9af9641ff44fb1be1a690d07ce8b70
+
+      - name: cp.icr.io/cp/gpfs/csi/csi-provisioner:v6.2.0@sha256:6be9f63ca4caa6c46aae55aa372500949d8a21473d72f819da1f746076b32d4e
+
+      - name: cp.icr.io/cp/gpfs/csi/csi-resizer:v2.1.0@sha256:589e525cddef6d768e68da1f0bc9ffd0a24bf3add3dd010648eb7189976fde79
+
+      - name: cp.icr.io/cp/gpfs/csi/csi-snapshotter:v8.5.0@sha256:da081c27e8a6d91f36042c1942362d0515ced8d06e18c11b8f893e58c4d6d797
+
+      - name: cp.icr.io/cp/gpfs/csi/ibm-spectrum-scale-csi-driver:v3.1.0@sha256:35c2c45c0a8f6504cf50dda57fd0c827244e822e02febf449a37630fc6d01b9d
+
+      - name: cp.icr.io/cp/gpfs/csi/livenessprobe:v2.18.0@sha256:c4cc074199c045dd73ab85f28897e2a32f4d6f38ffdba4f3b13b8007ccbd3570
+
+
+      # IBM Storage Scale
+      - name: cp.icr.io/cp/gpfs/data-management/ibm-spectrum-scale-daemon:v6.0.1.0@sha256:3651a79cfd42e67416995af3442b667beef09c9c1417e406b7be20cb63497ddf
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-core-init:v6.0.1.0@sha256:1775f4d2c51ae9bef6d0d129c79efcfefb4d6d4008445d57b852d4c4397b2fe2
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-coredns:v6.0.1.0@sha256:781db6ee6019ae2468b57f48abc17033ccfcdb88beb555b2797ee4fe32a2731b
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-grafana-bridge:v6.0.1.0@sha256:3843a5db15d214355d7c80751b7ab771cbaef9be025eea04745386d9210914e5
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-gui:v6.0.1.0@sha256:fd85ae58cfdf4ef48b300f542967a0b2e626ff4015af86a5f31e648b76d11160
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-logs:v6.0.1.0@sha256:16754a6b3e1eaac73a3df6d6ded01d31e0f5d0cc75dc6f30d1cb8043d2dc0685
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-monitor:v6.0.1.0@sha256:a15797ec26b5e6b54de4396ed4fdb9303169908c04337694ff2d2f2e9372df87
+
+      - name: cp.icr.io/cp/gpfs/ibm-spectrum-scale-pmcollector:v6.0.1.0@sha256:10dd10e7ab9c32d36b31924c266671573c48fe1fd4c43cb1a6d89d7644482a4c
+
+      - name: cp.icr.io/cp/gpfs/postgres:18.1-alpine3.23@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29
+
+
+      # IBM Storage Scale operator components
+      - name: icr.io/cpopen/ibm-spectrum-scale-must-gather:v6.0.1.0@sha256:39d5a03dcc657ce704299767e09408e52be040edf11d8a2cf4b72864178e4535
+
+      - name: icr.io/cpopen/ibm-spectrum-scale-operator-bundle:v6.0.1.0@sha256:b29e753b855f26561dc320c90f70940d96400d79d04f6870a8aef3ca72b6e5f0
+
+      - name: icr.io/cpopen/ibm-spectrum-scale-operator:v6.0.1.0@sha256:5e2095f878f45b561e17fc00725d6ca69653d12f7693d295b0a53a40046f1a45
   ```
 
  ⚡️ Important: the cp.icr.io credentials must contain the customer's IBM Fusion entitlement. IBM explicitly requires that entitlement for these images [DOCS](https://www.ibm.com/docs/en/fusion-software/2.13.0?topic=images-mirroring-fusion)
@@ -449,10 +465,15 @@ Requires internet access.On a machine connected to the internet, you run **oc-mi
 
   ```bash
   # Note the file:// protocol instead of docker://
+  mkdir -p "${HOME}/oc-mirror-workspace"
+  mkdir -p "${HOME}/oc-mirror-cache"
+
   oc mirror --v2 \
-  --config imageset-config.yaml \
-  --authfile "${MIRROR_AUTH_FILE}" \
-  file:///mnt/usb-drive/mirror-archive
+    --config imageset-config.yaml \
+    --authfile "${MIRROR_AUTH_FILE}" \
+    --workspace "${HOME}/oc-mirror-workspace" \
+    --cache-dir "${HOME}/oc-mirror-cache" \
+    file:///mnt/usb-drive/mirror-archive
   ```
 
 💥 This downloads and packages all requested container images, along with the metadata, into a .tar archive on the drive.
@@ -481,18 +502,202 @@ Once that final step is complete, your internal registry is fully populated. The
 
 ---
 
-99. Apply the Configuration to the Cluster (Optional : Post-Install/Day 2)
+### 99. Apply the Mirror Configuration to the Cluster (Optional: Post-Install / Day 2)
 
-Once **oc-mirror** successfully pushes the images to the internal registry, it automatically generates a results-xxx directory inside the working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files). If you are using the Assisted Installer. These manifests need to be applied to the cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from the internal registry instead of the internet.
+> **Note:** This section is performed only after the OpenShift cluster is installed and accessible.
+>
+> For the initial disconnected Agent-based installation, the mirror registry information and its CA trust must already be configured in `install-config.yaml` before the Agent ISO is generated.
+>
+> This section configures the running cluster to use the mirrored repositories and Operator catalogs generated by `oc-mirror v2`.
 
-  ```bash
-  # Navigate to the generated results directory
-  cd oc-mirror-workspace/results-*/
+After the disk-to-registry operation completes successfully, `oc-mirror v2` generates the cluster resources required to use the mirrored content.
 
-  # Apply the Image Content Source Policy (tells nodes where to redirect pulls)
-  oc apply -f imageContentSourcePolicy.yaml 
-  # OR in newer OCP versions: oc apply -f imageDigestMirrorSet.yaml
+For the sneakernet workflow used in this procedure, these resources are generated under:
 
-  # Apply the Catalog Source (makes the mirrored Operators appear in OperatorHub)
-  oc apply -f catalogSource-cs-redhat-operator-index.yaml
-  ```
+```text
+<mirror-data>/working-dir/cluster-resources/
+```
+
+For example:
+
+```bash
+MIRROR_DATA=/mnt/usb-drive/mirror-archive
+
+ls -lh "${MIRROR_DATA}/working-dir/cluster-resources/"
+```
+
+Depending on the content included in the `ImageSetConfiguration`, the directory can contain:
+
+```text
+ImageDigestMirrorSet
+ImageTagMirrorSet
+CatalogSource
+ClusterCatalog
+release signature ConfigMap
+```
+
+`ImageContentSourcePolicy` (ICSP) is not used by `oc-mirror v2`. Its functionality is replaced by `ImageDigestMirrorSet` (IDMS) and `ImageTagMirrorSet` (ITMS).
+
+#### Login to the cluster
+
+Login as a user with `cluster-admin` privileges:
+
+```bash
+oc login https://api.<cluster>.<base-domain>:6443
+```
+
+Verify access:
+
+```bash
+oc whoami
+oc get nodes
+```
+
+All nodes should be visible and in `Ready` state before continuing.
+
+#### Review the generated resources
+
+Before applying them, review the files generated by `oc-mirror`:
+
+```bash
+find "${MIRROR_DATA}/working-dir/cluster-resources/" \
+  -maxdepth 1 \
+  -type f \
+  -print
+```
+
+Optionally inspect the resources:
+
+```bash
+grep -R "^kind:" \
+  "${MIRROR_DATA}/working-dir/cluster-resources/"
+```
+
+Do not manually modify the registry mappings or image references generated by `oc-mirror`.
+
+#### Apply the generated mirror resources
+
+Apply the generated resources to the cluster:
+
+```bash
+oc apply -f \
+  "${MIRROR_DATA}/working-dir/cluster-resources/"
+```
+
+These resources configure the cluster to use the internal mirror registry for mirrored image content and make the mirrored Operator catalogs available to the cluster.
+
+#### Apply the OpenShift release signatures
+
+Because the OpenShift Container Platform release payload was included in the mirror operation, apply the generated release signature ConfigMap if present:
+
+```bash
+SIGNATURE_FILE="${MIRROR_DATA}/working-dir/cluster-resources/signature-configmap.json"
+
+if [ -f "${SIGNATURE_FILE}" ]; then
+  oc apply -f "${SIGNATURE_FILE}"
+fi
+```
+
+Do not treat a missing signature file as an error when performing an Operator-only mirror operation.
+
+#### Verify ImageDigestMirrorSet
+
+Verify that the generated digest mirror configuration is installed:
+
+```bash
+oc get imagedigestmirrorset
+```
+
+To show only resources generated by `oc-mirror v2`:
+
+```bash
+oc get imagedigestmirrorset \
+  -o jsonpath='{.items[?(@.metadata.annotations.createdBy=="oc-mirror v2")].metadata.name}{"\n"}'
+```
+
+#### Verify ImageTagMirrorSet
+
+If tag-based mirror rules were generated:
+
+```bash
+oc get imagetagmirrorset
+```
+
+To show only resources generated by `oc-mirror v2`:
+
+```bash
+oc get imagetagmirrorset \
+  -o jsonpath='{.items[?(@.metadata.annotations.createdBy=="oc-mirror v2")].metadata.name}{"\n"}'
+```
+
+#### Verify Operator catalogs
+
+Verify that the mirrored Operator catalogs are available:
+
+```bash
+oc get catalogsource -n openshift-marketplace
+```
+
+Check their status:
+
+```bash
+oc get catalogsource -n openshift-marketplace \
+  -o custom-columns=NAME:.metadata.name,IMAGE:.spec.image
+```
+
+The catalog images should reference the internal disconnected registry rather than the original external registries.
+
+If `ClusterCatalog` resources were generated, verify them as well:
+
+```bash
+oc get clustercatalog
+```
+
+#### Verify Operator availability
+
+Check that the required Operators can now be discovered from the mirrored catalogs:
+
+```bash
+oc get packagemanifests -n openshift-marketplace | \
+  grep -E 'kubevirt-hyperconverged|numaresources-operator|kernel-module-management|kubernetes-nmstate'
+```
+
+Also verify the IBM-related packages required for Fusion Access for SAN:
+
+```bash
+oc get packagemanifests -n openshift-marketplace | \
+  grep -Ei 'fusion|spectrum|scale|odf|ocs'
+```
+
+The exact IBM package list depends on the IBM catalogs included in the `ImageSetConfiguration`.
+
+#### Verify mirror configuration on the cluster
+
+Check the installed mirror policies:
+
+```bash
+oc get imagedigestmirrorset -o yaml
+```
+
+and, when present:
+
+```bash
+oc get imagetagmirrorset -o yaml
+```
+
+Confirm that the `mirrors` entries point to the expected internal registry.
+
+#### Check for mirroring errors
+
+Review the `oc-mirror` working directory for error files:
+
+```bash
+find "${MIRROR_DATA}/working-dir/logs/" \
+  -type f \
+  -name 'mirroring_errors_*' \
+  -print 2>/dev/null
+```
+
+No mirroring error file should be present after a successful operation.
+
+---
