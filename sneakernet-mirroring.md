@@ -312,192 +312,107 @@ If the command returns an authentication or authorization error, verify that:
 ----
 
 ### 2. Mirror to Disk (media, directory on OS, etc)
-apiVersion: mirror.openshift.io/v2alpha1
-  kind: ImageSetConfiguration
+The connected host must have internet access to all registries referenced by the `ImageSetConfiguration`.
 
-  mirror:
+Before performing the real mirror operation, validate that the required OpenShift and Operator content can be resolved.
 
-    # =========================================================
-    # OpenShift Container Platform 4.21.26
-    # =========================================================
-    platform:
-      architectures:
-        - amd64
+#### Validate the Operator content
 
-      channels:
-        - name: stable-4.21
-          type: ocp
-          minVersion: "4.21.26"
-          maxVersion: "4.21.26"
+Confirm that the IBM Fusion Access for SAN Operator is present in the OpenShift 4.21 certified Operator catalog:
 
-      # Update graph is not required for the initial installation.
-      graph: false
+```bash
+oc mirror list operators \
+  --catalog registry.redhat.io/redhat/certified-operator-index:v4.21 \
+  --package openshift-fusion-access-operator
+```
 
+Confirm the Kernel Module Management Operator:
 
-    # =========================================================
-    # Operator catalogs
-    # =========================================================
-    operators:
+```bash
+oc mirror list operators \
+  --catalog registry.redhat.io/redhat/redhat-operator-index:v4.21 \
+  --package kernel-module-management
+```
 
-      # ---------------------------------------------------------
-      # Red Hat Operators
-      # ---------------------------------------------------------
-      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
-        packages:
+Also verify the OpenShift Virtualization package:
 
-          # OpenShift Virtualization
-          - name: kubevirt-hyperconverged
+```bash
+oc mirror list operators \
+  --catalog registry.redhat.io/redhat/redhat-operator-index:v4.21 \
+  --package kubevirt-hyperconverged
+```
 
-          # NUMA-aware scheduling
-          - name: numaresources-operator
+#### Perform an `oc-mirror` dry run
 
-          # Required by IBM Fusion Access for SAN / Storage Scale
-          - name: kernel-module-management
+Create a persistent workspace and cache:
 
-          # Node networking: bridges, bonds, VLANs, etc.
-          - name: kubernetes-nmstate-operator
+```bash
+mkdir -p "${HOME}/oc-mirror-workspace"
+mkdir -p "${HOME}/oc-mirror-cache"
+```
 
-          # Required by IBM Fusion Data Foundation
-          - name: local-storage-operator
+Run the dry run:
 
-          # Required by IBM Fusion Data Foundation
-          - name: lvms-operator
+```bash
+oc mirror --v2 \
+  --config imageset-config.yaml \
+  --authfile "${MIRROR_AUTH_FILE}" \
+  --workspace "${HOME}/oc-mirror-workspace" \
+  --cache-dir "${HOME}/oc-mirror-cache" \
+  file:///mnt/usb-drive/mirror-archive \
+  --dry-run
+```
 
+Review the generated image mapping:
 
-      # ---------------------------------------------------------
-      # IBM Fusion Software 2.13 base
-      # ---------------------------------------------------------
-      - catalog: icr.io/cpopen/isf-operator-software-catalog@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
-        packages:
-          - name: isf-operator
-            channels:
-              - name: v2.0
-                minVersion: "2.13.0"
-                maxVersion: "2.13.0"
+```bash
+grep -Ei \
+  'kubevirt|numaresources|kernel-module-management|nmstate|fusion-access' \
+  "${HOME}/oc-mirror-workspace/working-dir/dry-run/mapping.txt"
+```
 
+The output must contain the required OpenShift Virtualization, KMM, NMState, NUMA and Fusion Access Operator images before proceeding.
 
-      # ---------------------------------------------------------
-      # IBM Fusion Usage Metering Service
-      # Required component of IBM Fusion
-      # ---------------------------------------------------------
-      - catalog: icr.io/cpopen/ibm-usage-metering-operator-catalog@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
-        full: true
-        packages:
-          - name: ibm-usage-metering-operator
-            channels:
-              - name: v1.0
+> ⚠️ **IBM Storage Scale images**
+>
+> The standalone Fusion Access for SAN Operator installs IBM Storage Scale after the `FusionAccess` custom resource is created.
+>
+> In a disconnected environment, the corresponding IBM Storage Scale operand images must also exist in the private registry.
+>
+> The exact Storage Scale image set is version-specific. Do not reuse the Storage Scale 6.0.1.0 image list documented for the Fusion Data Foundation 4.21 deployment unless IBM confirms that the same Storage Scale version is to be used with the standalone Fusion Access for SAN Operator.
+>
+> The final `additionalImages` section must therefore be populated with the IBM-published images corresponding to the Storage Scale version selected for this Fusion Access deployment before performing the final production mirror.
 
+#### Mirror the content to disk
 
-      # ---------------------------------------------------------
-      # IBM Fusion Data Foundation 4.21
-      #
-      # Fusion Access for SAN is integrated with FDF on OCP 4.21.
-      # ---------------------------------------------------------
-      - catalog: icr.io/cpopen/isf-data-foundation-catalog:v4.21
-        packages:
+After the ImageSetConfiguration has been validated and the required IBM Storage Scale image set has been confirmed, mirror the content to the removable media:
 
-          - name: cephcsi-operator
+```bash
+oc mirror --v2 \
+  --config imageset-config.yaml \
+  --authfile "${MIRROR_AUTH_FILE}" \
+  --workspace "${HOME}/oc-mirror-workspace" \
+  --cache-dir "${HOME}/oc-mirror-cache" \
+  file:///mnt/usb-drive/mirror-archive
+```
 
-          - name: mcg-operator
+The `file://` destination contains the archives and metadata that must be transferred across the air gap.
 
-          - name: ocs-operator
+Verify that the mirror archive was generated:
 
-          - name: odf-csi-addons-operator
+```bash
+find /mnt/usb-drive/mirror-archive \
+  -type f \
+  -name 'mirror_*.tar' \
+  -ls
+```
 
-          - name: odf-multicluster-orchestrator
+Generate checksums before transferring the media:
 
-          - name: odf-operator
+```bash
+cd /mnt/usb-drive/mirror-archive
 
-          - name: odr-cluster-operator
+sha256sum mirror_*.tar > SHA256SUMS
+```
 
-          - name: odr-hub-operator
-
-          - name: ocs-client-operator
-
-          - name: odf-prometheus-operator
-
-          - name: recipe
-
-          - name: rook-ceph-operator
-
-          - name: odf-dependencies
-
-          - name: odf-external-snapshotter-operator
-
-          # IBM Storage Scale / CNSA integration
-          - name: ibm-spectrum-scale-operator
-
-          - name: cnsa-dependencies
-
-
-    # =========================================================
-    # Additional images
-    # =========================================================
-    additionalImages:
-
-      # ---------------------------------------------------------
-      # IBM Fusion Software 2.13 catalog
-      # ---------------------------------------------------------
-      - name: icr.io/cpopen/isf-operator-software-catalog:2.13.0-13849@sha256:569b3f5158af370abe3dbe049c53be55d32f239a717ca74f1f5e544c697e8f21
-
-
-      # ---------------------------------------------------------
-      # IBM Fusion Usage Metering catalog
-      # ---------------------------------------------------------
-      - name: icr.io/cpopen/ibm-usage-metering-operator-catalog:2.13.0-24525@sha256:a97cef95c73ac6dacea010818757b4ed9b7440f4c0ec4154a091f248c68d1c9e
-
-
-      # =========================================================
-      # IBM Storage Scale 6.0.1.0
-      #
-      # Required for IBM Fusion Access for SAN on OCP 4.21.
-      # These are pinned to the image digests published by IBM
-      # for Storage Scale 6.0.1.0.
-      # =========================================================
-
-      # CSI sidecars
-      - name: cp.icr.io/cp/gpfs/csi/csi-attacher:v4.11.0@sha256:b74b05b39501565022883fc128002b4cb857a7bb6c858606bcb3fdedba0b0b80
-
-      - name: cp.icr.io/cp/gpfs/csi/csi-node-driver-registrar:v2.16.0@sha256:ab482308a4921e28a6df09a16ab99a457e9af9641ff44fb1be1a690d07ce8b70
-
-      - name: cp.icr.io/cp/gpfs/csi/csi-provisioner:v6.2.0@sha256:6be9f63ca4caa6c46aae55aa372500949d8a21473d72f819da1f746076b32d4e
-
-      - name: cp.icr.io/cp/gpfs/csi/csi-resizer:v2.1.0@sha256:589e525cddef6d768e68da1f0bc9ffd0a24bf3add3dd010648eb7189976fde79
-
-      - name: cp.icr.io/cp/gpfs/csi/csi-apiVersion: mirror.openshift.io/v2alpha1
-  kind: ImageSetConfiguration
-
-  mirror:
-
-    # =========================================================
-    # OpenShift Container Platform 4.21.26
-    # =========================================================
-    platform:
-      architectures:
-        - amd64
-
-      channels:
-        - name: stable-4.21
-          type: ocp
-          minVersion: "4.21.26"
-          maxVersion: "4.21.26"
-
-      # Update graph is not required for the initial installation.
-      graph: false
-
-
-    # =========================================================
-    # Operator catalogs
-    # =========================================================
-    operators:
-
-      # ---------------------------------------------------------
-      # Red Hat Operators
-      # ---------------------------------------------------------
-      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
-        packages:
-
-          # OpenShift Virtualization
-          - name: kubevirt-hyperconverged
-
-   
+Keep the `oc-mirror` workspace and cache on the connected host. They should not be treated as temporary files because they are useful for subsequent incremental mirror operations.
