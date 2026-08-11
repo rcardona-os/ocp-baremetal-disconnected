@@ -1,0 +1,55 @@
+apiVersion: mirror.openshift.io/v2alpha1
+kind: ImageSetConfiguration
+
+mirror:
+
+  # =========================================================
+  # OpenShift Container Platform 4.21.26
+  # =========================================================
+  platform:
+    architectures:
+      - amd64
+
+    channels:
+      - name: stable-4.21
+        type: ocp
+        minVersion: "4.21.26"
+        maxVersion: "4.21.26"
+
+    graph: false
+
+
+  # =========================================================
+  # Operators
+  # =========================================================
+  operators:
+
+    # ---------------------------------------------------------
+    # Red Hat Operators
+    # ---------------------------------------------------------
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
+      packages:
+
+        # OpenShift Virtualization
+        - name: kubevirt-hyperconverged
+
+        # NUMA-aware scheduling
+        - name: numaresources-operator
+
+        # Required by IBM Fusion Access for SAN for
+        # GPFS kernel module lifecycle management
+        - name: kernel-module-management
+
+        # Host networking for bridges, bonds, VLANs, etc.
+        - name: kubernetes-nmstate-operator
+
+
+    # ---------------------------------------------------------
+    # IBM Fusion Access for SAN
+    #
+    # Standalone Fusion Access for SAN Operator
+    # ---------------------------------------------------------
+    - catalog: registry.redhat.io/redhat/certified-operator-index:v4.21
+      packages:
+
+        - name: openshift-fusion-access-operator
