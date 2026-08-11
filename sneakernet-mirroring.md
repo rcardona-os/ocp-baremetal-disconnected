@@ -6,7 +6,7 @@ Red Hat specifically designed the oc-mirror tool to handle this exact scenario u
 
 Before beginning the sneakernet process, ensure your intermediary media (USB drive, external HDD) has sufficient storage capacity. While a base OpenShift release may only take a few gigabytes, adding operators (like OpenShift Data Foundation, OpenShift Virtualization, or Pipelines) can quickly inflate the archive size. **It is recommend a drive with at least 100GB to 250GB of free space** depending on how many operators you mirror.
 
-0. Installating binaries and dependencies
+### 0. Installating binaries and dependencies
 
 - Install depencides
   ```bash
@@ -38,7 +38,7 @@ Before beginning the sneakernet process, ensure your intermediary media (USB dri
   sudo chmod +x /usr/local/bin/oc
   ```
 
-1. Preparing the images
+### 1. Preparing the images
 
 #### Red Hat Openshift Base Images and Operators
 
@@ -441,25 +441,9 @@ If the command returns an authentication or authorization error, verify that:
   - the requested IBM Storage Scale image is included in the customer's entitlement
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ----
 
-2. Mirror to Disk (Connected Environment):Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
+### 2. Mirror to Disk (Connected Environment):Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
 
 ```bash
 # Note the file:// protocol instead of docker://
@@ -469,9 +453,13 @@ oc mirror --config imageset-config.yaml file:///mnt/usb-drive/mirror-archive
 💥 This downloads and packages all requested container images, along with the metadata, into a .tar archive on the drive.
 
 
-3. The Physical Air-Gap Transfer:The Sneakernet.You safely unmount the USB drive, physically walk it across the facility—often passing it through security scanners or malware kiosks as required by the organization—and plug it into a Bastion host sitting entirely inside the restricted network.
+### 3. The Physical Air-Gap Transfer:The Sneakernet
 
-4. Mirror to Registry (Disconnected Environment):No internet access.From the internal Bastion host, you run oc-mirror again. This time, you instruct it to unpack the archive from the USB drive and push the images into your internal, disconnected container registry (like Quay, Nexus, or the Red Hat Mirror Registry).
+One safely unmount the USB drive, physically walk it across the facility, often passing it through security scanners or malware kiosks as required by the organization, and plug it into a Bastion host sitting entirely inside the restricted network.
+
+### 4. Mirror to Registry (Disconnected Environment)
+
+No internet access, from the internal Bastion host, oc-mirror is run again. This time, it is instructed it to unpack the archive from the USB drive and push the images into your internal, disconnected container registry.
 
 
   ```bash
@@ -479,14 +467,14 @@ oc mirror --config imageset-config.yaml file:///mnt/usb-drive/mirror-archive
   ```
 
 
-Once that final step is complete, your internal registry is fully populated. You then point your Assisted Installer (and the resulting OpenShift cluster) at that internal registry, and the installation proceeds completely isolated from the outside world.
+Once that final step is complete, your internal registry is fully populated. Thereafter the Assisted Installer is configuired to point (and the resulting OpenShift cluster) at that internal registry, and the installation proceeds completely isolated from the outside world.
 
 
 ---
 
 99. Apply the Configuration to the Cluster (Optional : Post-Install/Day 2)
 
-Once **oc-mirror** successfully pushes the images to your internal registry, it automatically generates a results-xxx directory inside your working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files). If you are using the Assisted Installer, you will need to apply these manifests to your cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from your internal registry instead of the internet.
+Once **oc-mirror** successfully pushes the images to the internal registry, it automatically generates a results-xxx directory inside the working folder. This folder contains critical Kubernetes manifests (ImageContentSourcePolicy or ImageDigestMirrorSet, and CatalogSource files). If you are using the Assisted Installer. These manifests need to be applied to the cluster after it finishes installing (or inject them during installation if supported) so the nodes know to pull images from the internal registry instead of the internet.
 
   ```bash
   # Navigate to the generated results directory
