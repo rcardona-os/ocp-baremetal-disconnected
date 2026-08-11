@@ -13,17 +13,19 @@ You will also need an `imageset-config.yaml` file to define exactly what you wan
   ```yaml
   # example-imageset-config.yaml
   kind: ImageSetConfiguration
-  apiVersion: mirror.openshift.io/v1alpha2
+  apiVersion: mirror.openshift.io/v2alpha1
   mirror:
-    platform:
-      channels:
-      - name: stable-4.21.26
+  platform:
+    architectures:
+      - amd64
+
+    channels:
+      - name: stable-4.21
         type: ocp
-    operators:
-      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.14
-        packages:
-          - name: advanced-cluster-management
-          - name: odf-operator
+        minVersion: "4.21.26"
+        maxVersion: "4.21.26"
+
+    graph: false
   ```
 
 1. Mirror to Disk (Connected Environment):Requires internet access.On a machine connected to the internet, you run **oc-mirror** targeting a local directory on your portable media (e.g., a mounted USB drive) instead of a registry URL.
