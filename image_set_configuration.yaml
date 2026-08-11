@@ -32,24 +32,44 @@ mirror:
 
         # OpenShift Virtualization
         - name: kubevirt-hyperconverged
+          channels:
+            - name: stable
 
         # NUMA-aware scheduling
         - name: numaresources-operator
 
-        # Required by IBM Fusion Access for SAN for
-        # GPFS kernel module lifecycle management
+        # Required by IBM Fusion Access for SAN
+        # for GPFS kernel module lifecycle management
         - name: kernel-module-management
+          channels:
+            - name: stable
 
-        # Host networking for bridges, bonds, VLANs, etc.
+        # Host networking:
+        # bridges, bonds, VLANs and VM secondary networks
         - name: kubernetes-nmstate-operator
 
 
     # ---------------------------------------------------------
     # IBM Fusion Access for SAN
     #
-    # Standalone Fusion Access for SAN Operator
+    # Standalone Fusion Access for SAN Operator.
+    # This is NOT Fusion Data Foundation.
     # ---------------------------------------------------------
     - catalog: registry.redhat.io/redhat/certified-operator-index:v4.21
       packages:
 
         - name: openshift-fusion-access-operator
+
+
+  # =========================================================
+  # IBM Storage Scale operand images
+  #
+  # REQUIRED for a fully disconnected Fusion Access for SAN
+  # deployment, but the exact image set is tied to the
+  # Storage Scale version selected by the FusionAccess CR.
+  #
+  # Do not populate this from the FDF 6.0.1.0 documentation
+  # unless IBM confirms that version for the standalone
+  # Fusion Access deployment.
+  # =========================================================
+  additionalImages: []

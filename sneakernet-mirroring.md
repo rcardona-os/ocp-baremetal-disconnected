@@ -90,16 +90,6 @@ You will also need an `imageset-config.yaml` file to define exactly what you wan
 
 #### IBM Fusion Access for SAN
 
-IBM Fusion 2.13 introduces Fusion Access for SAN as a Fusion Data Foundation 4.21 capability. IBM's current disconnected procedure for OCP 4.21+ says the disconnected environment needs three IBM-related sets of content [DOCS](https://www.ibm.com/docs/en/fusion-software/2.13.0?topic=images-mirroring-fusion-data-foundation):
-
-  - Red Hat Operators
-  - Fusion Data Foundation 4.21
-  - IBM Storage Scale 6.0.1.0 images
-
-IBM's current oc-mirror v2 configuration for Fusion Data Foundation 4.21 uses
-
-#### IBM Fusion Access for SAN
-
 This deployment uses **IBM Fusion Access for SAN as a standalone Operator**.
 
 For OpenShift Container Platform 4.21 or later, IBM supports two deployment models:
@@ -124,6 +114,8 @@ The Fusion Access Operator package is:
 
 #### Complete ImageSetConfiguration for this installation
 
+  - The following is the ImageSetConfiguration file for Red Hat component
+
   ```bash
   cat imageset-config.yaml
   ```
@@ -134,57 +126,33 @@ The Fusion Access Operator package is:
 
   mirror:
 
-    # =========================================================
-    # OpenShift Container Platform 4.21.26
-    # =========================================================
     platform:
       architectures:
         - amd64
-
       channels:
         - name: stable-4.21
           type: ocp
           minVersion: "4.21.26"
           maxVersion: "4.21.26"
-
       graph: false
 
-
-    # =========================================================
-    # Operators
-    # =========================================================
     operators:
 
-      # ---------------------------------------------------------
-      # Red Hat Operators
-      # ---------------------------------------------------------
       - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
         packages:
 
-          # OpenShift Virtualization
           - name: kubevirt-hyperconverged
-
-          # NUMA-aware scheduling
           - name: numaresources-operator
-
-          # Required by IBM Fusion Access for SAN for
-          # GPFS kernel module lifecycle management
           - name: kernel-module-management
-
-          # Host networking for bridges, bonds, VLANs, etc.
           - name: kubernetes-nmstate-operator
 
-
-      # ---------------------------------------------------------
-      # IBM Fusion Access for SAN
-      #
-      # Standalone Fusion Access for SAN Operator
-      # ---------------------------------------------------------
       - catalog: registry.redhat.io/redhat/certified-operator-index:v4.21
         packages:
 
           - name: openshift-fusion-access-operator
   ```
+
+  - The following is the ImageSetConfiguration file for complete deployment including IBM Fusion Access for SAN, but first access to IBM public repositories should be configured.
 
  ⚡️ Important: the cp.icr.io credentials must contain the customer's IBM Fusion entitlement. IBM explicitly requires that entitlement for these images [DOCS](https://www.ibm.com/docs/en/fusion-software/2.13.0?topic=images-mirroring-fusion)
 
@@ -308,8 +276,92 @@ If the command returns an authentication or authorization error, verify that:
   - access to cp.icr.io is permitted through the firewall/proxy
   - the requested IBM Storage Scale image is included in the customer's entitlement
 
+- Complete - The following is the ImageSetConfiguration file for Red Hat component
+
+  ```bash
+  cat imageset-config.yaml
+  ```
+
+  ```yaml
+  apiVersion: mirror.openshift.io/v2alpha1
+  kind: ImageSetConfiguration
+
+  mirror:
+
+    # =========================================================
+    # OpenShift Container Platform 4.21.26
+    # =========================================================
+    platform:
+      architectures:
+        - amd64
+
+      channels:
+        - name: stable-4.21
+          type: ocp
+          minVersion: "4.21.26"
+          maxVersion: "4.21.26"
+
+      graph: false
+
+
+    # =========================================================
+    # Operators
+    # =========================================================
+    operators:
+
+      # ---------------------------------------------------------
+      # Red Hat Operators
+      # ---------------------------------------------------------
+      - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
+        packages:
+
+          # OpenShift Virtualization
+          - name: kubevirt-hyperconverged
+            channels:
+              - name: stable
+
+          # NUMA-aware scheduling
+          - name: numaresources-operator
+
+          # Required by IBM Fusion Access for SAN
+          # for GPFS kernel module lifecycle management
+          - name: kernel-module-management
+            channels:
+              - name: stable
+
+          # Host networking:
+          # bridges, bonds, VLANs and VM secondary networks
+          - name: kubernetes-nmstate-operator
+
+
+      # ---------------------------------------------------------
+      # IBM Fusion Access for SAN
+      #
+      # Standalone Fusion Access for SAN Operator.
+      # This is NOT Fusion Data Foundation.
+      # ---------------------------------------------------------
+      - catalog: registry.redhat.io/redhat/certified-operator-index:v4.21
+        packages:
+
+          - name: openshift-fusion-access-operator
+
+
+    # =========================================================
+    # IBM Storage Scale operand images
+    #
+    # REQUIRED for a fully disconnected Fusion Access for SAN
+    # deployment, but the exact image set is tied to the
+    # Storage Scale version selected by the FusionAccess CR.
+    #
+    # Do not populate this from the FDF 6.0.1.0 documentation
+    # unless IBM confirms that version for the standalone
+    # Fusion Access deployment.
+    # =========================================================
+    additionalImages: []
+  ```
 
 ----
+
 
 ### 2. Mirror to Disk (media, directory on OS, etc)
 The connected host must have internet access to all registries referenced by the `ImageSetConfiguration`.
