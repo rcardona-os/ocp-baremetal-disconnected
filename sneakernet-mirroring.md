@@ -221,7 +221,7 @@ If any image returns an authentication or authorization error, stop and verify:
 - connectivity to `cp.icr.io`
 - access to the specific IBM Storage Scale image that failed
 
-- Complete - The following is the ImageSetConfiguration file for Red Hat component
+- The following is the ImageSetConfiguration file for Red Hat component and IBM Fusion Access for SAN with the required version of operators
 
   ```bash
   cat imageset-config.yaml
