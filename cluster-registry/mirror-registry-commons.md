@@ -152,73 +152,95 @@ Exameple:
 
 ---
 
-### EXTRA help commands
+## EXTRA help commands
 
----
-
-- commands to query existing tags on quay registry
-
-  - __(option 1)__ listing existing tags
+#### Define the common variables again in case this section is used independently
   ```bash
-  skopeo login registry.sandbox549.opentlc.com:8443
-
-  ```
-  ```bash
-  skopeo list-tags docker://registry.sandbox549.opentlc.com:8443/ocp4/openshift4
+  export TARGET_REGISTRY="registry.sandbox2278.opentlc.com:8443"
+  export DISCONNECTED_AUTH_FILE="${HOME}/.config/oc-mirror/disconnected-auth.json"
   ```
 
-  - __(option 2)__ listing existing tags
+#### Verify authentication to the registry
   ```bash
-  curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 >regctl
+  podman login \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    "${TARGET_REGISTRY}"
   ```
+
+#### List all repositories in the registry using regctl
   ```bash
+  curl -L \
+    https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 \
+    -o regctl
+
   chmod 755 regctl
-  ```
-  ```bash
-  regctl tag ls registry.sandbox549.opentlc.com:8443/ocp4/openshift4
-  ```
-  - __(option 3)__ listing repositories/catalogs
-  ```bash
-  curl -X GET -k --header 'Content-Type: application/json' \
-  --data '{ "username": "admin", "password":"quaypass123"}' \
-  https://registry.sandbox549.opentlc.com:8443/v2/_catalog
-  ```
-  
-  - __(option 4)__ list tags in the mirrored repo
-  ```bash
-  podman login -u admin --authfile pull-secret.json registry.sandbox549.opentlc.com:8443 --tls-verify=false
+  sudo mv regctl /usr/local/bin/regctl
   ```
 
-  ```bash
-  podman search --list-tags registry.sandbox549.opentlc.com:8443/ocp4/openshift4 --limit 100 --tls-verify=false
-  ```
-
-
----
-
-- further
-  ```bash
-  curl -su $DOCKER_USERNAME:$DOCKER_PASSWORD https://$DOCKER_REGISTRY/v2/_catalog | jq .
-  ```
-  ```bash
-  curl -su admin:quayPass123 https://registry.sandbox549.opentlc.com:8443/v2/_catalog | jq .
-  ```
-
-
----
-
-extract certs from quay registry
+  then;
 ```bash
-openssl s_client -connect registry.ocp-private.com:8443 -showcerts
+regctl repo ls "${TARGET_REGISTRY}"
 ```
 
-NOTE: When configuring OpenShift with a private registry, you need to add the appropriate certificate to the install-config.yaml. Based on the output of the openssl s_client command you provided, the certificate that should be added is the Root CA Certificate (the one at the top of the chain). 
+#### For a registry requiring authentication, configure the registry credentials
+  ```bash
+  regctl registry login "${TARGET_REGISTRY}"
+  ``` 
+  
+#### List all tags in a specific repository
+  ```bash
+  export REPOSITORY="<repository-name>"
 
-Certificates in Your Output
-Certificate 0: This is the server certificate (quay-enterprise), issued by registry.ocp-private.com. It is the direct certificate used for communication.
-Certificate 1: This is the issuer's certificate (registry.ocp-private.com), which is the Root CA. This is the certificate you should include because it is responsible for verifying the chain of trust.
+  skopeo list-tags \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    "docker://${TARGET_REGISTRY}/${REPOSITORY}" | jq .
+  ```
 
-- The Root CA certificate is marked as:
-```text
-i:C = US, ST = VA, L = New York, O = Quay, OU = Division, CN = registry.ocp-private.com
-```
+For example;
+  ```bash
+  export REPOSITORY="openshift/release-images"
+
+  skopeo list-tags \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    "docker://${TARGET_REGISTRY}/${REPOSITORY}" | jq .
+  ```
+
+⚡️ **skopeo** list-tags supports registry authentication files directly and returns the repository and its available tags.
+
+#### Alternative tag listing with Podman
+  ```bash
+  podman search \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    --list-tags \
+    "${TARGET_REGISTRY}/${REPOSITORY}" \
+    --limit 100
+  ```
+
+Podman supports both --authfile and --list-tags; the repository must be fully specified
+
+#### Inspect a specific mirrored image:
+  ```bash
+  export IMAGE="<repository>:<tag>"
+
+  skopeo inspect \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    "docker://${TARGET_REGISTRY}/${IMAGE}" | jq .
+  ```
+
+For a shorter useful output:
+  ```bash
+  skopeo inspect \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    "docker://${TARGET_REGISTRY}/${IMAGE}" \
+    | jq '{Name, Digest, RepoTags, Architecture, Os}'
+  ```
+
+
+
+
+
+
+#### 
+
+
+###### 
