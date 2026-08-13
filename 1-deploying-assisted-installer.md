@@ -44,9 +44,11 @@ Replace these addresses with the real IP addresses.
 
 Cluster networks:
 
-Machine network:  192.168.50.0/24
-Pod network:      10.128.0.0/14
-Service network:  172.30.0.0/16
+  ```text
+  Machine network:  192.168.50.0/24
+  Pod network:      10.128.0.0/14
+  Service network:  172.30.0.0/16
+  ```
 
 Do not allow the machine, pod, or service networks to overlap with each other or with existing infrastructure networks.
 
@@ -56,17 +58,17 @@ The Agent-based Installer requires apiVIPs and ingressVIPs when platform: bareme
 
 The following records should already exist.
 
-api.ocpcluster.example.com       -> 192.168.50.20
-api-int.ocpcluster.example.com   -> 192.168.50.20
-*.apps.ocpcluster.example.com    -> 192.168.50.21
-
-master-0.ocpcluster.example.com  -> 192.168.50.31
-master-1.ocpcluster.example.com  -> 192.168.50.32
-master-2.ocpcluster.example.com  -> 192.168.50.33
-
-worker-0.ocpcluster.example.com  -> 192.168.50.41
-worker-1.ocpcluster.example.com  -> 192.168.50.42
-worker-2.ocpcluster.example.com  -> 192.168.50.43
+| DNS Name | IP Address |
+|---|---:|
+| `api.ocpcluster.example.com` | 192.168.50.20 |
+| `api-int.ocpcluster.example.com` | 192.168.50.20 |
+| `*.apps.ocpcluster.example.com` | 192.168.50.21 |
+| `master-0.ocpcluster.example.com` | 192.168.50.31 |
+| `master-1.ocpcluster.example.com` | 192.168.50.32 |
+| `master-2.ocpcluster.example.com` | 192.168.50.33 |
+| `worker-0.ocpcluster.example.com` | 192.168.50.41 |
+| `worker-1.ocpcluster.example.com` | 192.168.50.42 |
+| `worker-2.ocpcluster.example.com` | 192.168.50.43 |
 
 PTR records for the physical nodes should also resolve correctly.
 
