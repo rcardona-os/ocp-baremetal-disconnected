@@ -3,7 +3,7 @@
 Objective: OpenShift 4.21.26 Bare-Metal Installation Using the Agent-based Installer
 
 
-#### 1. Scope
+#### 0. Scope
 
 The Agent-based Installer generates one bootable ISO containing the configuration required to discover and install the physical hosts. Red Hat supports disconnected HA clusters consisting of three control-plane nodes and compute nodes with this installation method.
 
@@ -23,6 +23,44 @@ This procedure installs:
 - Agent-based Installer
 - IPv4
 - OVN-Kubernetes
+
+#### 1. Target Architecture
+
+We are installing:
+
+OpenShift:          4.21.26
+Cluster name:       ocpcluster
+Base domain:        example.com
+Cluster domain:     ocpcluster.example.com
+
+Platform:           baremetal
+Load balancer:      OpenShiftManagedDefault
+External LB:        NOT REQUIRED
+
+Control planes:     3
+Workers:            3
+
+Networking:         Static IPv4
+Network plugin:     OVNKubernetes
+Installation:       Agent-based Installer
+Environment:        Disconnected
+
+The Agent-based Installer supports an HA topology consisting of three control-plane nodes plus compute nodes. For platform: baremetal, apiVIPs and ingressVIPs must be specified.
+
+The important load-balancer configuration will be:
+
+  ```yaml
+  platform:
+    baremetal:
+      loadBalancer:
+        type: OpenShiftManagedDefault
+      apiVIPs:
+      - 192.168.50.20
+      ingressVIPs:
+      - 192.168.50.21
+  ```
+
+OpenShiftManagedDefault causes OpenShift's internal API/Ingress load-balancing components to be deployed; UserManaged would instead require an out-of-band load balancer.
 
 #### 2. Example Network Plan
 
@@ -50,9 +88,31 @@ Cluster networks:
   Service network:  172.30.0.0/16
   ```
 
-Do not allow the machine, pod, or service networks to overlap with each other or with existing infrastructure networks.
+Do not allow the machine, pod, or service networks to overlap with each other or with existing infrastructure networks. The Agent-based Installer requires apiVIPs and ingressVIPs when platform: baremetal is used.
 
-The Agent-based Installer requires apiVIPs and ingressVIPs when platform: baremetal is used.
+💥 VERY IMPORTANT
+
+Do not configure these addresses manually on any server:
+
+  ```text
+  192.168.50.20   API VIP
+  192.168.50.21   Ingress VIP
+  ```
+
+They must be:
+
+  - reserved
+  - reachable on the machine network
+  - not allocated to another machine
+  - not allocated by DHCP
+  - not included later in the MetalLB pool
+
+OpenShift will manage these two VIPs because we are using:
+
+  ```yaml
+  loadBalancer:
+    type: OpenShiftManagedDefault
+  ```
 
 #### 3. Verify DNS Before Doing Anything Else
 
@@ -74,38 +134,46 @@ PTR records for the physical nodes should also resolve correctly.
 
 Check from the installation/bastion host:
 
-dig +short api.ocpcluster.example.com
-dig +short api-int.ocpcluster.example.com
-dig +short test.apps.ocpcluster.example.com
+  ```bash
+  dig +short api.ocpcluster.example.com
+  dig +short api-int.ocpcluster.example.com
+  dig +short test.apps.ocpcluster.example.com
+  ```
 
 Expected:
 
-192.168.50.20
-192.168.50.20
-192.168.50.21
+  ```text
+  192.168.50.20
+  192.168.50.20
+  192.168.50.21
+  ```
 
 Check the nodes:
 
-for h in \
-master-0 master-1 master-2 \
-worker-0 worker-1 worker-2
-do
-    echo "=== $h ==="
-    dig +short ${h}.ocpcluster.example.com
-done
+  ```bash
+  for h in \
+  master-0 master-1 master-2 \
+  worker-0 worker-1 worker-2
+  do
+      echo "=== $h ==="
+      dig +short ${h}.ocpcluster.example.com
+  done
+  ```
 
 Check reverse DNS:
 
-for ip in \
-192.168.50.31 \
-192.168.50.32 \
-192.168.50.33 \
-192.168.50.41 \
-192.168.50.42 \
-192.168.50.43
-do
-    echo "=== $ip ==="
-    dig +short -x ${ip}
-done
+  ```bash
+  for ip in \
+  192.168.50.31 \
+  192.168.50.32 \
+  192.168.50.33 \
+  192.168.50.41 \
+  192.168.50.42 \
+  192.168.50.43
+  do
+      echo "=== $ip ==="
+      dig +short -x ${ip}
+  done
+  ```
 
 Correct DNS before proceeding if these results are wrong.
