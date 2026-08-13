@@ -67,17 +67,13 @@ $\textcolor{LightSalmon} {\text{THE INSTALLER CONFIGURES THE QUAY SERVICE.}}$
 
 - Deploying mirror registry
   ```bash
-  tar xzvf mirror-registry.tar.gz
-
-  export REGISTRY_FQDN="registry.sandbox2278.opentlc.com"
-  export QUAY_ROOT="${HOME}/quay-install"
-
-  ./mirror-registry install
-  --quayHostname "${REGISTRY_FQDN}"
-  --quayRoot "${QUAY_ROOT}"
-  --initUser quayadmin
-  --initPassword "quayPass123"
+  ./mirror-registry install \
+    --quayHostname "${REGISTRY_FQDN}" \
+    --quayRoot "${QUAY_ROOT}" \
+    --initUser quayadmin \
+    --initPassword "quayPass123"
   ```
+
 
 ![`Example Command Launch`](media/quay-0.png)
 
@@ -88,9 +84,9 @@ Here it is visible the end point of the registry. Login with credentials user:"q
 - __(optional)__ If the default self-signed certificates are being used, add the generated CA to the host trust store:
 
   ```bash
-  sudo cp
-  "${QUAY_ROOT}/quay-rootCA/rootCA.pem"
-    /etc/pki/ca-trust/source/anchors/quay-rootCA.pem
+  sudo cp \
+  "${QUAY_ROOT}/quay-rootCA/rootCA.pem" \
+  /etc/pki/ca-trust/source/anchors/quay-rootCA.pem
 
   sudo update-ca-trust
   ```
