@@ -205,7 +205,6 @@ There should be no existing host using them.
 
 If the installation host is on the same L2 network, a better duplicate-address check is:
 
-
   ```bash
   sudo arping -D -c 3 -I <INTERFACE> 192.168.50.20
   sudo arping -D -c 3 -I <INTERFACE> 192.168.50.21
@@ -224,10 +223,10 @@ Expected output:
   ```
 Then use:
 
-```bash
-sudo arping -D -c 3 -I eno1 192.168.50.20
-sudo arping -D -c 3 -I eno1 192.168.50.21
-```
+  ```bash
+  sudo arping -D -c 3 -I eno1 192.168.50.20
+  sudo arping -D -c 3 -I eno1 192.168.50.21
+  ```
 ----
 
 #### 5. Verify Network/Firewall Requirements
@@ -266,23 +265,29 @@ Use the RHEL host inside the disconnected environment from which we will create 
 
 Install the required packages:
 
-sudo dnf install -y \
-    /usr/bin/nmstatectl \
-    jq \
-    bind-utils \
-    podman
+  ```bash
+  sudo dnf install -y \
+      /usr/bin/nmstatectl \
+      jq \
+      bind-utils \
+      podman
+  ```
 
 nmstatectl is explicitly required when using the preferred install-config.yaml + agent-config.yaml Agent workflow with NMState networking.
 
 Verify:
 
-nmstatectl --version
-jq --version
-podman --version
+  ```bash
+  nmstatectl --version
+  jq --version
+  podman --version
+  ```
 
 Verify that oc is installed:
 
-oc version --client
+  ```bash
+  oc version --client
+  ```
 
 ---
 
@@ -292,94 +297,98 @@ We will define the installation values once and use them everywhere.
 
 Run:
 
-cat > $HOME/ocpcluster-vars.sh <<'EOF'
-# ----------------------------------------------------------------------
-# OCP
-# ----------------------------------------------------------------------
-export OCP_VERSION='4.21.26'
-export ARCHITECTURE='x86_64'
+  ```bash
+  cat > $HOME/ocpcluster-vars.sh <<'EOF'
+  # ----------------------------------------------------------------------
+  # OCP
+  # ----------------------------------------------------------------------
+  export OCP_VERSION='4.21.26'
+  export ARCHITECTURE='x86_64'
 
-export CLUSTER_NAME='ocpcluster'
-export BASE_DOMAIN='example.com'
+  export CLUSTER_NAME='ocpcluster'
+  export BASE_DOMAIN='example.com'
 
-# ----------------------------------------------------------------------
-# NETWORK
-# ----------------------------------------------------------------------
-export MACHINE_NETWORK='192.168.50.0/24'
-export GATEWAY='192.168.50.1'
-export DNS_SERVER='192.168.50.10'
-export NTP_SERVER='192.168.50.11'
-export PREFIX_LENGTH='24'
+  # ----------------------------------------------------------------------
+  # NETWORK
+  # ----------------------------------------------------------------------
+  export MACHINE_NETWORK='192.168.50.0/24'
+  export GATEWAY='192.168.50.1'
+  export DNS_SERVER='192.168.50.10'
+  export NTP_SERVER='192.168.50.11'
+  export PREFIX_LENGTH='24'
 
-export API_VIP='192.168.50.20'
-export INGRESS_VIP='192.168.50.21'
+  export API_VIP='192.168.50.20'
+  export INGRESS_VIP='192.168.50.21'
 
-# ----------------------------------------------------------------------
-# NODES
-# ----------------------------------------------------------------------
-export MASTER0_IP='192.168.50.31'
-export MASTER1_IP='192.168.50.32'
-export MASTER2_IP='192.168.50.33'
+  # ----------------------------------------------------------------------
+  # NODES
+  # ----------------------------------------------------------------------
+  export MASTER0_IP='192.168.50.31'
+  export MASTER1_IP='192.168.50.32'
+  export MASTER2_IP='192.168.50.33'
 
-export WORKER0_IP='192.168.50.41'
-export WORKER1_IP='192.168.50.42'
-export WORKER2_IP='192.168.50.43'
+  export WORKER0_IP='192.168.50.41'
+  export WORKER1_IP='192.168.50.42'
+  export WORKER2_IP='192.168.50.43'
 
-# ----------------------------------------------------------------------
-# PHYSICAL NIC
-# Change if the production servers use a different interface name
-# ----------------------------------------------------------------------
-export NODE_INTERFACE='eno1'
+  # ----------------------------------------------------------------------
+  # PHYSICAL NIC
+  # Change if the production servers use a different interface name
+  # ----------------------------------------------------------------------
+  export NODE_INTERFACE='eno1'
 
-# ----------------------------------------------------------------------
-# HOST MAC ADDRESSES
-# REPLACE THESE SIX VALUES
-# ----------------------------------------------------------------------
-export MASTER0_MAC='<MASTER0_MAC>'
-export MASTER1_MAC='<MASTER1_MAC>'
-export MASTER2_MAC='<MASTER2_MAC>'
+  # ----------------------------------------------------------------------
+  # HOST MAC ADDRESSES
+  # REPLACE THESE SIX VALUES
+  # ----------------------------------------------------------------------
+  export MASTER0_MAC='<MASTER0_MAC>'
+  export MASTER1_MAC='<MASTER1_MAC>'
+  export MASTER2_MAC='<MASTER2_MAC>'
 
-export WORKER0_MAC='<WORKER0_MAC>'
-export WORKER1_MAC='<WORKER1_MAC>'
-export WORKER2_MAC='<WORKER2_MAC>'
+  export WORKER0_MAC='<WORKER0_MAC>'
+  export WORKER1_MAC='<WORKER1_MAC>'
+  export WORKER2_MAC='<WORKER2_MAC>'
 
-# ----------------------------------------------------------------------
-# LOCAL OS DISK SERIAL NUMBERS
-# REPLACE THESE SIX VALUES
-# ----------------------------------------------------------------------
-export MASTER0_DISK_SERIAL='<MASTER0_DISK_SERIAL>'
-export MASTER1_DISK_SERIAL='<MASTER1_DISK_SERIAL>'
-export MASTER2_DISK_SERIAL='<MASTER2_DISK_SERIAL>'
+  # ----------------------------------------------------------------------
+  # LOCAL OS DISK SERIAL NUMBERS
+  # REPLACE THESE SIX VALUES
+  # ----------------------------------------------------------------------
+  export MASTER0_DISK_SERIAL='<MASTER0_DISK_SERIAL>'
+  export MASTER1_DISK_SERIAL='<MASTER1_DISK_SERIAL>'
+  export MASTER2_DISK_SERIAL='<MASTER2_DISK_SERIAL>'
 
-export WORKER0_DISK_SERIAL='<WORKER0_DISK_SERIAL>'
-export WORKER1_DISK_SERIAL='<WORKER1_DISK_SERIAL>'
-export WORKER2_DISK_SERIAL='<WORKER2_DISK_SERIAL>'
+  export WORKER0_DISK_SERIAL='<WORKER0_DISK_SERIAL>'
+  export WORKER1_DISK_SERIAL='<WORKER1_DISK_SERIAL>'
+  export WORKER2_DISK_SERIAL='<WORKER2_DISK_SERIAL>'
 
-# ----------------------------------------------------------------------
-# DISCONNECTED REGISTRY
-# REPLACE THESE VALUES WITH THE REAL MIRROR VALUES
-# ----------------------------------------------------------------------
-export MIRROR_REGISTRY='<REGISTRY_FQDN:PORT>'
+  # ----------------------------------------------------------------------
+  # DISCONNECTED REGISTRY
+  # REPLACE THESE VALUES WITH THE REAL MIRROR VALUES
+  # ----------------------------------------------------------------------
+  export MIRROR_REGISTRY='<REGISTRY_FQDN:PORT>'
 
-export MIRROR_OCP_RELEASE='<EXACT_MIRRORED_OCP_RELEASE_REPOSITORY>'
-export MIRROR_OCP_ART='<EXACT_MIRRORED_OCP_ART_REPOSITORY>'
+  export MIRROR_OCP_RELEASE='<EXACT_MIRRORED_OCP_RELEASE_REPOSITORY>'
+  export MIRROR_OCP_ART='<EXACT_MIRRORED_OCP_ART_REPOSITORY>'
 
-export RELEASE_IMAGE='<EXACT_MIRRORED_4.21.26_RELEASE_IMAGE>'
+  export RELEASE_IMAGE='<EXACT_MIRRORED_4.21.26_RELEASE_IMAGE>'
 
-# ----------------------------------------------------------------------
-# FILES
-# ----------------------------------------------------------------------
-export PULL_SECRET="$HOME/pull-secret.json"
-export MIRROR_CA="$HOME/mirror-registry-ca.crt"
+  # ----------------------------------------------------------------------
+  # FILES
+  # ----------------------------------------------------------------------
+  export PULL_SECRET="$HOME/pull-secret.json"
+  export MIRROR_CA="$HOME/mirror-registry-ca.crt"
 
-export OCMIRROR_WORKSPACE='<PATH_TO_OC_MIRROR_WORKSPACE>'
+  export OCMIRROR_WORKSPACE='<PATH_TO_OC_MIRROR_WORKSPACE>'
 
-export INSTALL_DIR="$HOME/ocpcluster-install"
-EOF
+  export INSTALL_DIR="$HOME/ocpcluster-install"
+  EOF
+  ```
 
 Load it:
 
-source $HOME/ocpcluster-vars.sh
+  ```bash
+  source $HOME/ocpcluster-vars.sh
+  ```
 
 ---
 
@@ -389,23 +398,31 @@ Before creating agent-config.yaml, physically verify each host.
 
 On each server, boot an existing Linux environment or suitable live environment and run:
 
-ip -br link
+  ```bash
+  ip -br link
+  ```
 
 Example:
 
-eno1    UP    00:11:22:33:44:01
+  ```text
+  eno1    UP    00:11:22:33:44:01
+  ```
 
 Record the MAC.
 
 Then:
 
-lsblk -d -o NAME,SIZE,MODEL,SERIAL,WWN,TRAN
+  ```bash
+  lsblk -d -o NAME,SIZE,MODEL,SERIAL,WWN,TRAN
+  ```
 
 Example:
 
-NAME   SIZE MODEL                  SERIAL             WWN
-sda    447G PERC-H755             LOCALDISK0001
-sdb      4T IBM-SAN-LUN           6005076...
+  ```text
+  NAME   SIZE MODEL                  SERIAL             WWN
+  sda    447G PERC-H755             LOCALDISK0001
+  sdb      4T IBM-SAN-LUN           6005076...
+  ```
 
 For the OCP boot disk, record the local physical/RAID disk serial.
 
@@ -415,25 +432,33 @@ Use the local OS disk — not a SAN LUN.
 
 Update:
 
-vi $HOME/ocpcluster-vars.sh
+  ```bash
+  vi $HOME/ocpcluster-vars.sh
+  ```
 
 and replace:
 
-<MASTER0_MAC>
-...
-<WORKER2_MAC>
+  ```text
+  <MASTER0_MAC>
+  ...
+  <WORKER2_MAC>
 
-<MASTER0_DISK_SERIAL>
-...
-<WORKER2_DISK_SERIAL>
+  <MASTER0_DISK_SERIAL>
+  ...
+  <WORKER2_DISK_SERIAL>
+  ```
 
 Then reload:
 
-source $HOME/ocpcluster-vars.sh
+  ```text
+  source $HOME/ocpcluster-vars.sh
+  ```
 
 Check:
 
-env | grep -E '_(MAC|DISK_SERIAL)=' | sort
+  ```text
+  env | grep -E '_(MAC|DISK_SERIAL)=' | sort
+  ```
 
 There should be no <...> values remaining for these variables.
 
