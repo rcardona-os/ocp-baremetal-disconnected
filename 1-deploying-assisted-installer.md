@@ -177,3 +177,75 @@ Check reverse DNS:
   ```
 
 Correct DNS before proceeding if these results are wrong.
+
+#### 4. Verify the VIPs Are Free
+
+The following two IPs must not already belong to anything:
+
+  ```text
+  192.168.50.20
+  192.168.50.21
+  ```
+
+At minimum:
+
+  ```bash
+  ping -c 3 192.168.50.20
+  ping -c 3 192.168.50.21
+  ```
+
+There should be no existing host using them.
+
+If the installation host is on the same L2 network, a better duplicate-address check is:
+
+
+  ```bash
+  sudo arping -D -c 3 -I <INTERFACE> 192.168.50.20
+  sudo arping -D -c 3 -I <INTERFACE> 192.168.50.21
+  ```
+
+Replace <INTERFACE> with the interface connected to 192.168.50.0/24. For example:
+
+  ```bash
+  ip -br addr
+  ```
+
+Expected output:
+
+  ```text
+  eno1    UP    192.168.50.10/24
+  ```
+Then use:
+
+```bash
+sudo arping -D -c 3 -I eno1 192.168.50.20
+sudo arping -D -c 3 -I eno1 192.168.50.21
+```
+
+#### 5. Verify Network/Firewall Requirements
+
+There is one Agent-based Installer-specific requirement that must not be missed:
+
+**All six nodes -> master-0/rendezvous -> TCP/8090**
+
+In our example:
+
+  ```text
+  192.168.50.31:8090
+  ```
+
+During discovery/bootstrap all hosts communicate with the Assisted Service running on the rendezvous host over TCP/8090. The port is only required during installation. Also ensure the normal OpenShift machine-network communication is not blocked, including access to:
+
+  ```text
+  API VIP:
+  192.168.50.20:6443
+
+  Machine Config Server:
+  192.168.50.20:22623
+
+  Ingress:
+  192.168.50.21:80
+  192.168.50.21:443
+  ```
+
+and normal unrestricted cluster-node communication required by OpenShift.
