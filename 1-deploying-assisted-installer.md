@@ -28,22 +28,21 @@ This procedure installs:
 
 We are installing:
 
-OpenShift:          4.21.26
-Cluster name:       ocpcluster
-Base domain:        example.com
-Cluster domain:     ocpcluster.example.com
-
-Platform:           baremetal
-Load balancer:      OpenShiftManagedDefault
-External LB:        NOT REQUIRED
-
-Control planes:     3
-Workers:            3
-
-Networking:         Static IPv4
-Network plugin:     OVNKubernetes
-Installation:       Agent-based Installer
-Environment:        Disconnected
+| Parameter | Value |
+|---|---|
+| OpenShift | `4.21.26` |
+| Cluster name | `ocpcluster` |
+| Base domain | `example.com` |
+| Cluster domain | `ocpcluster.example.com` |
+| Platform | `baremetal` |
+| Load balancer | `OpenShiftManagedDefault` |
+| External LB | **NOT REQUIRED** |
+| Control planes | `3` |
+| Workers | `3` |
+| Networking | `Static IPv4` |
+| Network plugin | `OVNKubernetes` |
+| Installation | `Agent-based Installer` |
+| Environment | `Disconnected` |
 
 The Agent-based Installer supports an HA topology consisting of three control-plane nodes plus compute nodes. For platform: baremetal, apiVIPs and ingressVIPs must be specified.
 
