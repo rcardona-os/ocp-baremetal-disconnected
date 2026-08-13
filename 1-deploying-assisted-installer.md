@@ -24,6 +24,8 @@ This procedure installs:
 - IPv4
 - OVN-Kubernetes
 
+---
+
 #### 1. Target Architecture
 
 We are installing:
@@ -60,6 +62,8 @@ The important load-balancer configuration will be:
   ```
 
 OpenShiftManagedDefault causes OpenShift's internal API/Ingress load-balancing components to be deployed; UserManaged would instead require an out-of-band load balancer.
+
+---
 
 #### 2. Example Network Plan
 
@@ -112,6 +116,8 @@ OpenShift will manage these two VIPs because we are using:
   loadBalancer:
     type: OpenShiftManagedDefault
   ```
+
+---
 
 #### 3. Verify DNS Before Doing Anything Else
 
@@ -177,6 +183,8 @@ Check reverse DNS:
 
 Correct DNS before proceeding if these results are wrong.
 
+---
+
 #### 4. Verify the VIPs Are Free
 
 The following two IPs must not already belong to anything:
@@ -220,6 +228,7 @@ Then use:
 sudo arping -D -c 3 -I eno1 192.168.50.20
 sudo arping -D -c 3 -I eno1 192.168.50.21
 ```
+----
 
 #### 5. Verify Network/Firewall Requirements
 
