@@ -1017,7 +1017,7 @@ Check carefully:
   ingressVIP             192.168.50.21
 
   mirror repositories    CORRECT
-  CA                      CORRECT
+  CA                     CORRECT
   ```
 
 ---
