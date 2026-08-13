@@ -250,3 +250,13 @@ Verify:
   ```bash
   openssl x509 -in registry-ca.crt -noout -subject -issuer -dates
   ``` 
+
+#### finding image content sources info
+
+  ```bash
+  oc mirror --v2 \
+    --config "${IMAGESET_CONFIG}" \
+    --authfile "${DISCONNECTED_AUTH_FILE}" \
+    --from "file://${ARCHIVE_DIR}" \
+    "docker://${TARGET_REGISTRY}"
+  ```
