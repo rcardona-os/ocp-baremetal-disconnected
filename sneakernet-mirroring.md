@@ -276,6 +276,11 @@ If any image returns an authentication or authorization error, stop and verify:
           # Host networking
           - name: kubernetes-nmstate-operator
 
+          # MetalLB - Day 2 load balancer services
+          - name: metallb-operator
+            channels:
+              - name: stable
+
 
       # ---------------------------------------------------------
       # IBM Fusion Access for SAN
