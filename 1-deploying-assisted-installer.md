@@ -732,7 +732,7 @@ It must identify release:
 
 ---
 
-# 13. Extract the 4.21.26 Installer from the Mirrored Release
+#### 13. Extract the 4.21.26 Installer from the Mirrored Release
 
 Create a tools directory:
 
