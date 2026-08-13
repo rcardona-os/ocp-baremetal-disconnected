@@ -235,3 +235,18 @@ For a shorter useful output:
     | jq '{Name, Digest, RepoTags, Architecture, Os}'
   ```
 
+#### Adding the certificate of the private local registry into install-config.yaml
+
+  ```bash
+  openssl s_client \
+    -connect ${TARGET_REGISTRY}:8443 \
+    -showcerts </dev/null 2>/dev/null \
+    | openssl x509 -outform PEM \
+    > registry-ca.crt
+  ```
+
+Verify:
+
+  ```bash
+  openssl x509 -in registry-ca.crt -noout -subject -issuer -dates
+  ``` 
