@@ -534,7 +534,7 @@ export MIRROR_OCP_RELEASE='registry.example.com:8443/openshift/release-images'
 export MIRROR_OCP_ART='registry.example.com:8443/openshift/release'
 ```
 
-Again: those repository paths are examples. Use exactly what your oc-mirror v2 output says.
+ Use your real values from oc-mirror v2 output says.
 
 Reload:
 
@@ -548,35 +548,46 @@ source $HOME/ocpcluster-vars.sh
 
 Confirm the CA exists:
 
-ls -l "${MIRROR_CA}"
+  ```text
+  ls -l "${MIRROR_CA}"
+  ```
 
 Inspect it:
 
-openssl x509 \
-    -in "${MIRROR_CA}" \
-    -noout \
-    -subject \
-    -issuer \
-    -dates
+  ```bash
+  openssl x509 \
+      -in "${MIRROR_CA}" \
+      -noout \
+      -subject \
+      -issuer \
+      -dates
+  ```
 
 Install it in the RHEL system trust:
 
-sudo cp "${MIRROR_CA}" \
-    /etc/pki/ca-trust/source/anchors/mirror-registry-ca.crt
+  ```
+  sudo cp "${MIRROR_CA}" \
+      /etc/pki/ca-trust/source/anchors/mirror-registry-ca.crt
+  ```
 
 Run:
 
-sudo update-ca-trust
+  ```bash
+  sudo update-ca-trust
+  ```
 
 Test the registry:
 
-curl -sS \
-    -o /dev/null \
-    -w 'HTTP %{http_code}\n' \
-    "https://${MIRROR_REGISTRY}/v2/"
+  ```bash
+  curl -sS \
+      -o /dev/null \
+      -w 'HTTP %{http_code}\n' \
+      "https://${MIRROR_REGISTRY}/v2/"
+  ```
 
 Typical valid results are:
 
+```text
 HTTP 200
 
 or:
@@ -584,6 +595,7 @@ or:
 HTTP 401
 
 401 means TLS/network connectivity works but authentication is required.
+```
 
 A certificate verification error is not acceptable.
 
