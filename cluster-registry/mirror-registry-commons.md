@@ -235,12 +235,3 @@ For a shorter useful output:
     | jq '{Name, Digest, RepoTags, Architecture, Os}'
   ```
 
-
-
-
-
-
-#### 
-
-
-###### 
