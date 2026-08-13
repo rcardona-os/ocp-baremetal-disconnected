@@ -588,13 +588,11 @@ Test the registry:
 Typical valid results are:
 
 ```text
-HTTP 200
+HTTP 200 (successful request)
 
 or:
 
-HTTP 401
-
-401 means TLS/network connectivity works but authentication is required.
+HTTP 401 (means TLS/network connectivity works but authentication is required)
 ```
 
 A certificate verification error is not acceptable.
@@ -605,66 +603,66 @@ A certificate verification error is not acceptable.
 
 Validate the JSON:
 
-```bash
-jq . "${PULL_SECRET}" >/dev/null
-```
+  ```bash
+  jq . "${PULL_SECRET}" >/dev/null
+  ```
 
 Check return code:
 
-```bash
-echo $?
-```
+  ```bash
+  echo $?
+  ```
 
 Expected:
 
-```text
-0
-```
+  ```text
+  0
+  ```
 
 List registry entries:
 
-```bash
-jq -r '.auths | keys[]' "${PULL_SECRET}"
-```
+  ```bash
+  jq -r '.auths | keys[]' "${PULL_SECRET}"
+  ```
 
 Verify that the disconnected registry is present.
 
 You can specifically test:
 
-```bash
-jq -e \
-    --arg registry "${MIRROR_REGISTRY}" \
-    '.auths[$registry] != null' \
-    "${PULL_SECRET}"
-```
+  ```bash
+  jq -e \
+      --arg registry "${MIRROR_REGISTRY}" \
+      '.auths[$registry] != null' \
+      "${PULL_SECRET}"
+  ```
 
 If that succeeds:
 
-```bash
-echo $?
-```
+  ```bash
+  echo $?
+  ```
 
 returns:
 
-```text
-0
-```
+  ```text
+  0
+  ```
 
 If the mirror credentials are not present, add them:
 
-```bash
-podman login \
-    --authfile "${PULL_SECRET}" \
-    "${MIRROR_REGISTRY}"
-```
+  ```bash
+  podman login \
+      --authfile "${PULL_SECRET}" \
+      "${MIRROR_REGISTRY}"
+  ```
 
 Enter the mirror registry username/password when prompted.
 
 Then verify again:
 
-```bash
-jq -r '.auths | keys[]' "${PULL_SECRET}"
-```
+  ```bash
+  jq -r '.auths | keys[]' "${PULL_SECRET}"
+  ```
 
 ---
 
@@ -672,16 +670,16 @@ jq -r '.auths | keys[]' "${PULL_SECRET}"
 
 We need the exact release-image reference for:
 
-```text
-4.21.26
-x86_64
-```
+  ```text
+  4.21.26
+  x86_64
+  ```
 
 It will resemble:
 
-```text
-registry.example.com:8443/openshift/release-images:4.21.26-x86_64
-```
+  ```text
+  registry.example.com:8443/openshift/release-images:4.21.26-x86_64
+  ```
 
 but **do not guess the path**.
 
@@ -689,46 +687,46 @@ Use the exact value resulting from your mirror.
 
 Edit:
 
-```bash
-vi $HOME/ocpcluster-vars.sh
-```
+  ```bash
+  vi $HOME/ocpcluster-vars.sh
+  ```
 
 Set:
 
-```bash
-export RELEASE_IMAGE='registry.example.com:8443/openshift/release-images:4.21.26-x86_64'
-```
+  ```bash
+  export RELEASE_IMAGE='registry.example.com:8443/openshift/release-images:4.21.26-x86_64'
+  ```
 
 using your actual registry/repository.
 
 Reload:
 
-```bash
-source $HOME/ocpcluster-vars.sh
-```
+  ```bash
+  source $HOME/ocpcluster-vars.sh
+  ```
 
 Verify that it exists:
 
-```bash
-oc adm release info \
-    -a "${PULL_SECRET}" \
-    "${RELEASE_IMAGE}"
-```
+  ```bash
+  oc adm release info \
+      -a "${PULL_SECRET}" \
+      "${RELEASE_IMAGE}"
+  ```
 
 Look at the beginning:
 
-```bash
-oc adm release info \
-    -a "${PULL_SECRET}" \
-    "${RELEASE_IMAGE}" \
-    | head -20
-```
+  ```bash
+  oc adm release info \
+      -a "${PULL_SECRET}" \
+      "${RELEASE_IMAGE}" \
+      | head -20
+  ```
 
 It must identify release:
 
-```text
-4.21.26
-```
+  ```text
+  4.21.26
+  ```
 
 **STOP if the release is not 4.21.26.**
 
@@ -738,65 +736,65 @@ It must identify release:
 
 Create a tools directory:
 
-```bash
-mkdir -p $HOME/ocp42126-tools
-```
+  ```bash
+  mkdir -p $HOME/ocp42126-tools
+  ```
 
 Enter it:
 
-```bash
-cd $HOME/ocp42126-tools
-```
+  ```bash
+  cd $HOME/ocp42126-tools
+  ```
 
 Extract `openshift-install` directly from the mirrored 4.21.26 release:
 
-```bash
-oc adm release extract \
-    -a "${PULL_SECRET}" \
-    --command=openshift-install \
-    "${RELEASE_IMAGE}"
-```
+  ```bash
+  oc adm release extract \
+      -a "${PULL_SECRET}" \
+      --command=openshift-install \
+      "${RELEASE_IMAGE}"
+  ```
 
 Red Hat explicitly recommends extracting the installation program from the mirrored release so the installer is pinned to the version that was mirrored.
 
 Check:
 
-```bash
-ls -lh openshift-install
-```
+  ```bash
+  ls -lh openshift-install
+  ```
 
 Make executable:
 
-```bash
-chmod 0755 openshift-install
-```
+  ```bash
+  chmod 0755 openshift-install
+  ```
 
 Install:
 
-```bash
-sudo install \
-    -m 0755 \
-    openshift-install \
-    /usr/local/bin/openshift-install
-```
+  ```bash
+  sudo install \
+      -m 0755 \
+      openshift-install \
+      /usr/local/bin/openshift-install
+  ```
 
 Verify:
 
-```bash
-openshift-install version
-```
+  ```bash
+  openshift-install version
+  ```
 
 It must show:
 
-```text
-openshift-install 4.21.26
-```
+  ```text
+  openshift-install 4.21.26
+  ```
 
 Also inspect its release image:
 
-```bash
-openshift-install version | grep -i 'release image'
-```
+  ```bash
+  openshift-install version | grep -i 'release image'
+  ```
 
 It should correspond to the intended 4.21.26 payload.
 
@@ -804,9 +802,9 @@ It should correspond to the intended 4.21.26 payload.
 
 This procedure is intentionally pinned to:
 
-```text
-4.21.26
-```
+  ```text
+  4.21.26
+  ```
 
 ---
 
@@ -814,24 +812,24 @@ This procedure is intentionally pinned to:
 
 Check whether one already exists:
 
-```bash
-ls -l ~/.ssh/id_ed25519.pub
-```
+  ```bash
+  ls -l ~/.ssh/id_ed25519.pub
+  ```
 
 If not:
 
-```bash
-ssh-keygen \
-    -t ed25519 \
-    -N '' \
-    -f ~/.ssh/id_ed25519
-```
+  ```bash
+  ssh-keygen \
+      -t ed25519 \
+      -N '' \
+      -f ~/.ssh/id_ed25519
+  ```
 
 Verify:
 
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
+  ```bash
+  cat ~/.ssh/id_ed25519.pub
+  ```
 
 This key gives us SSH access as `core` for troubleshooting.
 
@@ -841,29 +839,29 @@ This key gives us SSH access as `core` for troubleshooting.
 
 Set restrictive permissions for files created from this point:
 
-```bash
-umask 077
-```
+  ```bash
+  umask 077
+  ```
 
 Check whether the directory already exists:
 
-```bash
-ls -ld "${INSTALL_DIR}" 2>/dev/null
-```
+  ```bash
+  ls -ld "${INSTALL_DIR}" 2>/dev/null
+  ```
 
 If this is a **new installation**, it should not contain assets from a previous cluster attempt.
 
 Create it:
 
-```bash
-mkdir -p "${INSTALL_DIR}"
-```
+  ```bash
+  mkdir -p "${INSTALL_DIR}"
+  ```
 
 Check:
 
-```bash
-ls -la "${INSTALL_DIR}"
-```
+  ```bash
+  ls -la "${INSTALL_DIR}"
+  ```
 
 It should be empty.
 
@@ -873,21 +871,21 @@ It should be empty.
 
 Run:
 
-```bash
-export PULL_SECRET_JSON="$(jq -c . "${PULL_SECRET}")"
-```
+  ```bash
+  export PULL_SECRET_JSON="$(jq -c . "${PULL_SECRET}")"
+  ```
 
 Run:
 
-```bash
-export SSH_PUBLIC_KEY="$(cat ~/.ssh/id_ed25519.pub)"
-```
+  ```bash
+  export SSH_PUBLIC_KEY="$(cat ~/.ssh/id_ed25519.pub)"
+  ```
 
 Check:
 
-```bash
-echo "${SSH_PUBLIC_KEY}"
-```
+  ```bash
+  echo "${SSH_PUBLIC_KEY}"
+  ```
 
 Do not print the pull secret unnecessarily.
 
@@ -897,93 +895,93 @@ Do not print the pull secret unnecessarily.
 
 Run exactly:
 
-```bash
-cat > "${INSTALL_DIR}/install-config.yaml" <<EOF
-apiVersion: v1
+  ```bash
+  cat > "${INSTALL_DIR}/install-config.yaml" <<EOF
+  apiVersion: v1
 
-baseDomain: ${BASE_DOMAIN}
+  baseDomain: ${BASE_DOMAIN}
 
-metadata:
-  name: ${CLUSTER_NAME}
+  metadata:
+    name: ${CLUSTER_NAME}
 
-compute:
-- architecture: amd64
-  hyperthreading: Enabled
-  name: worker
-  replicas: 3
+  compute:
+  - architecture: amd64
+    hyperthreading: Enabled
+    name: worker
+    replicas: 3
 
-controlPlane:
-  architecture: amd64
-  hyperthreading: Enabled
-  name: master
-  replicas: 3
+  controlPlane:
+    architecture: amd64
+    hyperthreading: Enabled
+    name: master
+    replicas: 3
 
-networking:
-  clusterNetwork:
-  - cidr: 10.128.0.0/14
-    hostPrefix: 23
+  networking:
+    clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
 
-  machineNetwork:
-  - cidr: ${MACHINE_NETWORK}
+    machineNetwork:
+    - cidr: ${MACHINE_NETWORK}
 
-  networkType: OVNKubernetes
+    networkType: OVNKubernetes
 
-  serviceNetwork:
-  - 172.30.0.0/16
+    serviceNetwork:
+    - 172.30.0.0/16
 
-platform:
-  baremetal:
-    loadBalancer:
-      type: OpenShiftManagedDefault
+  platform:
+    baremetal:
+      loadBalancer:
+        type: OpenShiftManagedDefault
 
-    apiVIPs:
-    - ${API_VIP}
+      apiVIPs:
+      - ${API_VIP}
 
-    ingressVIPs:
-    - ${INGRESS_VIP}
+      ingressVIPs:
+      - ${INGRESS_VIP}
 
-fips: false
+  fips: false
 
-pullSecret: >-
-  ${PULL_SECRET_JSON}
+  pullSecret: >-
+    ${PULL_SECRET_JSON}
 
-sshKey: '${SSH_PUBLIC_KEY}'
+  sshKey: '${SSH_PUBLIC_KEY}'
 
-additionalTrustBundle: |
-$(sed 's/^/  /' "${MIRROR_CA}")
+  additionalTrustBundle: |
+  $(sed 's/^/  /' "${MIRROR_CA}")
 
-imageContentSources:
-- mirrors:
-  - ${MIRROR_OCP_RELEASE}
-  source: quay.io/openshift-release-dev/ocp-release
+  imageContentSources:
+  - mirrors:
+    - ${MIRROR_OCP_RELEASE}
+    source: quay.io/openshift-release-dev/ocp-release
 
-- mirrors:
-  - ${MIRROR_OCP_ART}
-  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
-EOF
-```
+  - mirrors:
+    - ${MIRROR_OCP_ART}
+    source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+  EOF
+  ```
 
 The important architecture section is now explicitly:
 
-```yaml
-platform:
-  baremetal:
-    loadBalancer:
-      type: OpenShiftManagedDefault
-    apiVIPs:
-    - 192.168.50.20
-    ingressVIPs:
-    - 192.168.50.21
-```
+  ```yaml
+  platform:
+    baremetal:
+      loadBalancer:
+        type: OpenShiftManagedDefault
+      apiVIPs:
+      - 192.168.50.20
+      ingressVIPs:
+      - 192.168.50.21
+  ```
 
 There is:
 
-```text
-NO platform: none
-NO UserManaged
-NO external HAProxy
-NO external F5
-```
+  ```text
+  NO platform: none
+  NO UserManaged
+  NO external HAProxy
+  NO external F5
+  ```
 
 Red Hat's 4.21 API definition describes `OpenShiftManagedDefault` as deploying the static components responsible for API and Ingress traffic load balancing, and it is the default bare-metal load-balancer mode.
 
@@ -995,32 +993,32 @@ For disconnected Agent installations, Red Hat requires the release mirror inform
 
 Run:
 
-```bash
-cat "${INSTALL_DIR}/install-config.yaml"
-```
+  ```bash
+  cat "${INSTALL_DIR}/install-config.yaml"
+  ```
 
 Check carefully:
 
-```text
-baseDomain             example.com
-metadata.name          ocpcluster
+  ```text
+  baseDomain             example.com
+  metadata.name          ocpcluster
 
-worker replicas        3
-master replicas        3
+  worker replicas        3
+  master replicas        3
 
-machineNetwork         192.168.50.0/24
-clusterNetwork         10.128.0.0/14
-serviceNetwork         172.30.0.0/16
+  machineNetwork         192.168.50.0/24
+  clusterNetwork         10.128.0.0/14
+  serviceNetwork         172.30.0.0/16
 
-platform               baremetal
-loadBalancer           OpenShiftManagedDefault
+  platform               baremetal
+  loadBalancer           OpenShiftManagedDefault
 
-apiVIP                 192.168.50.20
-ingressVIP             192.168.50.21
+  apiVIP                 192.168.50.20
+  ingressVIP             192.168.50.21
 
-mirror repositories    CORRECT
-CA                      CORRECT
-```
+  mirror repositories    CORRECT
+  CA                      CORRECT
+  ```
 
 ---
 
@@ -1030,276 +1028,276 @@ The Agent configuration identifies the physical servers by MAC address and suppl
 
 `master-0` will be the rendezvous host:
 
-```text
-master-0.ocpcluster.example.com
-192.168.50.31
-```
+  ```text
+  master-0.ocpcluster.example.com
+  192.168.50.31
+  ```
 
 The rendezvous IP must belong to a control-plane host.
 
 Create the file:
 
-```bash
-cat > "${INSTALL_DIR}/agent-config.yaml" <<EOF
-apiVersion: v1beta1
-kind: AgentConfig
+  ```bash
+  cat > "${INSTALL_DIR}/agent-config.yaml" <<EOF
+  apiVersion: v1beta1
+  kind: AgentConfig
 
-metadata:
-  name: ${CLUSTER_NAME}
+  metadata:
+    name: ${CLUSTER_NAME}
 
-rendezvousIP: ${MASTER0_IP}
+  rendezvousIP: ${MASTER0_IP}
 
-additionalNTPSources:
-- ${NTP_SERVER}
+  additionalNTPSources:
+  - ${NTP_SERVER}
 
-hosts:
+  hosts:
 
-# =====================================================================
-# MASTER 0 - RENDEZVOUS HOST
-# =====================================================================
-- hostname: master-0.ocpcluster.example.com
-  role: master
+  # =====================================================================
+  # MASTER 0 - RENDEZVOUS HOST
+  # =====================================================================
+  - hostname: master-0.ocpcluster.example.com
+    role: master
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${MASTER0_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${MASTER0_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${MASTER0_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${MASTER0_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${MASTER0_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${MASTER0_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${MASTER0_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${MASTER0_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
 
 
-# =====================================================================
-# MASTER 1
-# =====================================================================
-- hostname: master-1.ocpcluster.example.com
-  role: master
+  # =====================================================================
+  # MASTER 1
+  # =====================================================================
+  - hostname: master-1.ocpcluster.example.com
+    role: master
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${MASTER1_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${MASTER1_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${MASTER1_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${MASTER1_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${MASTER1_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${MASTER1_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${MASTER1_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${MASTER1_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
 
 
-# =====================================================================
-# MASTER 2
-# =====================================================================
-- hostname: master-2.ocpcluster.example.com
-  role: master
+  # =====================================================================
+  # MASTER 2
+  # =====================================================================
+  - hostname: master-2.ocpcluster.example.com
+    role: master
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${MASTER2_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${MASTER2_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${MASTER2_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${MASTER2_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${MASTER2_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${MASTER2_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${MASTER2_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${MASTER2_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
 
 
-# =====================================================================
-# WORKER 0
-# =====================================================================
-- hostname: worker-0.ocpcluster.example.com
-  role: worker
+  # =====================================================================
+  # WORKER 0
+  # =====================================================================
+  - hostname: worker-0.ocpcluster.example.com
+    role: worker
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${WORKER0_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${WORKER0_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${WORKER0_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${WORKER0_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${WORKER0_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${WORKER0_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${WORKER0_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${WORKER0_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
 
 
-# =====================================================================
-# WORKER 1
-# =====================================================================
-- hostname: worker-1.ocpcluster.example.com
-  role: worker
+  # =====================================================================
+  # WORKER 1
+  # =====================================================================
+  - hostname: worker-1.ocpcluster.example.com
+    role: worker
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${WORKER1_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${WORKER1_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${WORKER1_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${WORKER1_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${WORKER1_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${WORKER1_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${WORKER1_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${WORKER1_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
 
 
-# =====================================================================
-# WORKER 2
-# =====================================================================
-- hostname: worker-2.ocpcluster.example.com
-  role: worker
+  # =====================================================================
+  # WORKER 2
+  # =====================================================================
+  - hostname: worker-2.ocpcluster.example.com
+    role: worker
 
-  interfaces:
-  - name: ${NODE_INTERFACE}
-    macAddress: ${WORKER2_MAC}
-
-  rootDeviceHints:
-    serialNumber: "${WORKER2_DISK_SERIAL}"
-
-  networkConfig:
     interfaces:
     - name: ${NODE_INTERFACE}
-      type: ethernet
-      state: up
-      mac-address: ${WORKER2_MAC}
-      ipv4:
-        enabled: true
-        address:
-        - ip: ${WORKER2_IP}
-          prefix-length: ${PREFIX_LENGTH}
-        dhcp: false
-      ipv6:
-        enabled: false
+      macAddress: ${WORKER2_MAC}
 
-    dns-resolver:
-      config:
-        server:
-        - ${DNS_SERVER}
+    rootDeviceHints:
+      serialNumber: "${WORKER2_DISK_SERIAL}"
 
-    routes:
-      config:
-      - destination: 0.0.0.0/0
-        next-hop-address: ${GATEWAY}
-        next-hop-interface: ${NODE_INTERFACE}
-        table-id: 254
-EOF
-```
+    networkConfig:
+      interfaces:
+      - name: ${NODE_INTERFACE}
+        type: ethernet
+        state: up
+        mac-address: ${WORKER2_MAC}
+        ipv4:
+          enabled: true
+          address:
+          - ip: ${WORKER2_IP}
+            prefix-length: ${PREFIX_LENGTH}
+          dhcp: false
+        ipv6:
+          enabled: false
+
+      dns-resolver:
+        config:
+          server:
+          - ${DNS_SERVER}
+
+      routes:
+        config:
+        - destination: 0.0.0.0/0
+          next-hop-address: ${GATEWAY}
+          next-hop-interface: ${NODE_INTERFACE}
+          table-id: 254
+  EOF
+  ```
 
 This is NMState static networking. The Agent uses each configured MAC address to identify which physical host receives which configuration. Red Hat recommends explicitly assigning `master`/`worker` roles rather than allowing random role assignment.
 
