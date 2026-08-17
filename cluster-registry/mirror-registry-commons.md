@@ -306,7 +306,8 @@ Expected:
   ```
 
   ```text
-  🔥 That is correct for your disconnected cluster. Red Hat explicitly tells you to disable the remote default catalog sources in a restricted network
+  🔥 That is correct for your disconnected cluster. Red Hat explicitly recommends to 
+  disable the remote default catalog sources in a restricted network
   ```
 
 - check your oc-mirror v2 generated resources
