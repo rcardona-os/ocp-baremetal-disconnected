@@ -260,3 +260,90 @@ Verify:
     --from "file://${ARCHIVE_DIR}" \
     "docker://${TARGET_REGISTRY}"
   ```
+
+#### In case the operator are not visible in the operatos hub
+
+- finding the local catalog
+  ```bash
+  oc get catalogsource -n openshift-marketplace
+  ```
+
+Expected:
+  ```text
+  NAME                    DISPLAY                 TYPE   PUBLISHER
+  redhat-operators        Red Hat Operators       grpc   Red Hat
+  ```
+- check whether the catalog pod exists
+  ```bash
+  oc get pods -n openshift-marketplace -o wide
+  ```
+
+Expected:
+  ```text
+  marketplace-operator-...
+  <your-catalog>-...
+  ```
+- In case the catalog pod is as below, it suggests a registry/mirror issue rather than an OLM issue. Otherwise a healthy mirror should show many Operators
+  ```bash
+  oc get packagemanifest -n openshift-marketplace
+  ```
+
+- check mirrored operators ex.
+  ```bash
+  oc get packagemanifest -n openshift-marketplace | \
+    grep -Ei 'kubevirt|nmstate|numa|kernel|metallb'
+  ```
+
+- check whether you disabled all defaults
+  ```bash
+  oc get operatorhub cluster \
+      -o jsonpath='{.spec.disableAllDefaultSources}{"\n"}'
+  ```
+
+Expected:
+  ```text
+  true
+  ```
+
+  ```text
+  🔥 That is correct for your disconnected cluster. Red Hat explicitly tells you to disable the remote default catalog sources in a restricted network
+  ```
+
+- check your oc-mirror v2 generated resources
+  ```bash
+  find \
+    "${OCMIRROR_WORKSPACE}/working-dir/cluster-resources" \
+    -maxdepth 1 \
+    -type f \
+    -print
+  ```
+
+- checking the mirror policies
+  ```bash
+  grep -R -n \
+    -E 'kind: (CatalogSource|ImageDigestMirrorSet|ImageTagMirrorSet|ClusterCatalog)' \
+    "${OCMIRROR_WORKSPACE}/working-dir/cluster-resources"
+  ```
+
+- catalog reference image to ex 4.21
+  ```bash
+  grep -R -n \
+    'redhat-operator-index' \
+    "${OCMIRROR_WORKSPACE}/working-dir/cluster-resources"
+  ```
+
+Expected:
+  ```text
+  redhat-operator-index:v4.21
+  ```
+
+- In case the generated resources exist but have not been applied yet, proceed as follows
+  ```bash
+  oc apply -f \
+    "${OCMIRROR_WORKSPACE}/working-dir/cluster-resources"
+  ```
+
+  - then check the pods
+    ```bash
+    oc get catalogsource -n openshift-marketplace
+    ```
