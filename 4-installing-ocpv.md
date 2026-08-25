@@ -97,7 +97,7 @@ do
 done
 ```
 
-We want:
+Expected:
 
 ```text
 KVM: OK
@@ -166,7 +166,7 @@ oc apply -f ocp-virtualization-subscription.yaml
 watch oc get csv -n openshift-cnv
 ```
 
-Eventually we want:
+Expected:
 
 ```text
 OpenShift Virtualization    ...    Succeeded
@@ -274,7 +274,7 @@ oc get hco kubevirt-hyperconverged \
   jq -r '.status.conditions[] | {type,status}'
 ```
 
-We want:
+Expected:
 
 ```text
 Available       True
@@ -331,7 +331,7 @@ oc get cdi -n openshift-cnv
 
 #### 10. Verify the VM storage
 
-Now we use **IBM Fusion Access for SAN**, not a separate virtualization storage stack.
+In this case it uses **IBM Fusion Access for SAN**, not a separate virtualization storage stack.
 
 List StorageClasses:
 
@@ -421,7 +421,7 @@ Check:
 oc get pvc -n vm-test
 ```
 
-We want:
+Expected:
 
 ```text
 Bound
@@ -598,7 +598,7 @@ Check:
 oc get dv -n vm-test
 ```
 
-We want:
+Expected:
 
 ```text
 Succeeded
