@@ -914,3 +914,330 @@ VM running                 ✅
 ```
 
 The first disconnected VM is successfully provisioned.
+
+---
+
+#### Troubleshoot
+
+- 1. Confirm all three masters are schedulable
+```bash
+oc get scheduler cluster -o jsonpath='{.spec.mastersSchedulable}{"\n"}'
+```
+
+Expected:
+
+```text
+true
+```
+
+Also:
+
+```bash
+oc get nodes
+```
+
+It should shpw the three nodes as **Ready**.
+
+Check taints:
+```bash
+oc get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+```
+
+If it shows, then workloads/VMs are not schedule.
+```text
+node-role.kubernetes.io/master:NoSchedule
+node-role.kubernetes.io/control-plane:NoSchedule
+```
+
+then workloads/VMs might not schedule.
+
+On a 3-node bare-metal cluster with no compute nodes, the control planes are normally schedulable.
+
+- 2. Check the node labels
+
+Run:
+```bash
+oc get nodes --show-labels
+```
+
+More readable:
+```bash
+oc get nodes \
+  -L node-role.kubernetes.io/master,node-role.kubernetes.io/control-plane,node-role.kubernetes.io/worker
+```
+
+I would expect the nodes to be control-plane/master nodes. Do not worry if there is no worker label; the important part for this topology is that they are schedulable.
+
+3. Verify KVM exists on all three physical servers
+
+This is the big one for OpenShift Virtualization.
+
+Run:
+```bash
+for node in $(oc get nodes -o name); do
+  echo "===== ${node} ====="
+  oc debug "${node}" -- chroot /host \
+    sh -c 'ls -l /dev/kvm 2>/dev/null || echo "KVM MISSING"'
+done
+```
+
+It is expected on every node:
+```text
+/dev/kvm
+```
+
+If it gives:
+```text
+KVM MISSING
+```
+
+check BIOS/UEFI for:
+```text
+Intel VT-x / Intel Virtualization Technology
+```
+
+or:
+
+```text
+AMD-V / SVM
+```
+
+Do not proceed with VM testing until **/dev/kvm** exists.
+
+4. Check the CPU virtualization flags
+
+For Intel:
+```bash
+for node in $(oc get nodes -o name); do
+  echo "===== ${node} ====="
+  oc debug "${node}" -- chroot /host \
+    sh -c "grep -m1 -o 'vmx' /proc/cpuinfo || true"
+done
+```
+
+For AMD:
+```bash
+for node in $(oc get nodes -o name); do
+  echo "===== ${node} ====="
+  oc debug "${node}" -- chroot /host \
+    sh -c "grep -m1 -o 'svm' /proc/cpuinfo || true"
+done
+```
+
+It needs either:
+```text
+vmx
+```
+or:
+```text
+svm
+```
+depending on CPU vendor.
+
+5. Check resources — especially because control plane and VMs share the same machines
+
+Run:
+```bash
+oc adm top nodes
+```
+And:
+```bash
+oc describe nodes | egrep -A8 'Name:|Capacity:|Allocatable:'
+```
+
+For a 3-node compact cluster, remember that each machine will be doing both:
+```text
+etcd
+API server
+controller-manager
+scheduler
+OpenShift Operators
+Fusion Access components
+OpenShift Virtualization
+VM workloads
+```
+So I would be conservative with the first VM: maybe:
+```text
+2 vCPU
+4 GiB RAM
+```
+
+rather than immediately creating something large.
+
+6. Check that storage works on all three nodes
+
+Since you're using IBM Fusion Access for SAN, first identify the StorageClass:
+```bash
+oc get sc
+```
+
+Then:
+```bash
+oc get storageprofile
+```
+
+For the intended VM StorageClass:
+```bash
+oc get storageprofile <FUSION_STORAGECLASS> -o yaml
+```
+
+Check especially:
+```text
+status:
+  claimPropertySets:
+```
+
+It is expected that OpenShift Virtualization/CDI understands the supported:
+```text
+accessModes
+volumeMode
+```
+
+Before doing a VM, please tets it by creating one simple PVC against Fusion, and ensure it becomes:
+```text
+Bound
+```
+
+7. Check whether your three masters can all access the SAN storage
+
+This matters for live migration.
+
+The VM disk must be accessible from whichever of the three nodes may host the VM.
+
+After creating a test PVC:
+```bash
+oc get pvc
+```
+
+and:
+```bash
+oc get pv <PV_NAME> -o yaml
+```
+
+For SAN-backed shared storage, this should ultimately permit the disk to move between eligible virtualization nodes according to the CSI/storage capabilities.
+
+8. After OpenShift Virtualization is installed, check virt-handler
+
+One virt-handler should normally run on every virtualization-capable node:
+```bash
+oc get pods -n openshift-cnv -o wide | grep virt-handler
+```
+
+With the current topology it expects:
+```text
+virt-handler-xxxxx   Running   master-0
+virt-handler-yyyyy   Running   master-1
+virt-handler-zzzzz   Running   master-2
+```
+
+If only one or two appear, investigate node eligibility/taints/KVM.
+
+9. After HCO is running, check the virtualization node labels
+
+OpenShift Virtualization's node labeller discovers CPU capabilities and labels eligible nodes. Red Hat uses these labels when deciding where VMs can run and migrate.
+
+Useful check:
+```bash
+oc get nodes --show-labels | grep -E 'kubevirt|cpu-model|cpu-feature'
+```
+
+More targeted:
+```bash
+oc get nodes \
+  -o json | \
+  jq -r '.items[] |
+    .metadata.name as $n |
+    .metadata.labels |
+    to_entries[] |
+    select(.key | contains("kubevirt.io")) |
+    "\($n) \(.key)=\(.value)"'
+```
+
+10. Check KubeVirt resources advertised by kubelet
+
+After OpenShift Virtualization is fully installed:
+```bash
+oc get nodes \
+  -o custom-columns=NAME:.metadata.name,KVM:.status.allocatable.devices\\.kubevirt\\.io/kvm
+```
+
+Ideally each node shows KVM capacity rather than **<none>**.
+
+Also:
+```bash
+oc describe node <NODE> | grep -A10 -B3 kubevirt
+```
+
+This is one of the most useful post-install checks.
+
+11. Do not add a worker nodeSelector to HCO
+
+This is particularly important for this topology (three scheduleable masters).
+
+Do not configure something like:
+```yaml
+workloads:
+  nodePlacement:
+    nodeSelector:
+      node-role.kubernetes.io/worker: ""
+```
+
+because you have no worker nodes.
+
+Likewise don't configure VM manifests with:
+```yaml
+nodeSelector:
+  node-role.kubernetes.io/worker: ""
+```
+
+unless you later add actual workers.
+
+OpenShift Virtualization supports node placement rules, but a required node selector with no matching nodes makes the workload unschedulable.
+
+For now I would leave HCO simply:
+```text
+spec: {}
+```
+
+and let the three schedulable control planes be eligible.
+
+The short pre-flight I would actually run now
+```bash
+echo "=== SCHEDULER ==="
+oc get scheduler cluster \
+  -o jsonpath='{.spec.mastersSchedulable}{"\n"}'
+
+echo
+echo "=== NODES ==="
+oc get nodes -o wide
+
+echo
+echo "=== TAINTS ==="
+oc get nodes \
+  -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+
+echo
+echo "=== KVM ==="
+for node in $(oc get nodes -o name); do
+  echo "--- ${node} ---"
+  oc debug "${node}" -- chroot /host \
+    sh -c 'test -c /dev/kvm && echo "KVM OK" || echo "KVM MISSING"'
+done
+
+echo
+echo "=== NODE RESOURCES ==="
+oc adm top nodes
+
+echo
+echo "=== STORAGE ==="
+oc get sc
+```
+
+If those come back with:
+
+mastersSchedulable = true         ✅
+3 nodes Ready                     ✅
+no blocking NoSchedule taints     ✅
+/dev/kvm on all three             ✅
+reasonable CPU/RAM headroom       ✅
+Fusion SAN StorageClass           ✅
