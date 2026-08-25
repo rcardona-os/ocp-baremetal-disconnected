@@ -505,7 +505,7 @@ virtctl version
 
 #### 13. Prepare a local VM image
 
-For the first disconnected VM I recommend using a local:
+For the first disconnected VM it is recommended using a local:
 
 ```text
 QCOW2
