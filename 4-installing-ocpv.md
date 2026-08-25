@@ -966,9 +966,9 @@ oc get nodes \
   -L node-role.kubernetes.io/master,node-role.kubernetes.io/control-plane,node-role.kubernetes.io/worker
 ```
 
-I would expect the nodes to be control-plane/master nodes. Do not worry if there is no worker label; the important part for this topology is that they are schedulable.
+It expects the nodes to be control-plane/master nodes. The important part for this topology is that they are schedulable.
 
-3. Verify KVM exists on all three physical servers
+- 3. Verify KVM exists on all three physical servers
 
 This is the big one for OpenShift Virtualization.
 
@@ -1004,7 +1004,7 @@ AMD-V / SVM
 
 Do not proceed with VM testing until **/dev/kvm** exists.
 
-4. Check the CPU virtualization flags
+- 4. Check the CPU virtualization flags
 
 For Intel:
 ```bash
@@ -1034,7 +1034,7 @@ svm
 ```
 depending on CPU vendor.
 
-5. Check resources — especially because control plane and VMs share the same machines
+- 5. Check resources — especially because control plane and VMs share the same machines
 
 Run:
 ```bash
@@ -1064,7 +1064,7 @@ So I would be conservative with the first VM: maybe:
 
 rather than immediately creating something large.
 
-6. Check that storage works on all three nodes
+- 6. Check that storage works on all three nodes
 
 Since you're using IBM Fusion Access for SAN, first identify the StorageClass:
 ```bash
@@ -1098,7 +1098,7 @@ Before doing a VM, please tets it by creating one simple PVC against Fusion, and
 Bound
 ```
 
-7. Check whether your three masters can all access the SAN storage
+- 7. Check whether your three masters can all access the SAN storage
 
 This matters for live migration.
 
@@ -1116,7 +1116,7 @@ oc get pv <PV_NAME> -o yaml
 
 For SAN-backed shared storage, this should ultimately permit the disk to move between eligible virtualization nodes according to the CSI/storage capabilities.
 
-8. After OpenShift Virtualization is installed, check virt-handler
+- 8. After OpenShift Virtualization is installed, check virt-handler
 
 One virt-handler should normally run on every virtualization-capable node:
 ```bash
@@ -1132,7 +1132,7 @@ virt-handler-zzzzz   Running   master-2
 
 If only one or two appear, investigate node eligibility/taints/KVM.
 
-9. After HCO is running, check the virtualization node labels
+- 9. After HCO is running, check the virtualization node labels
 
 OpenShift Virtualization's node labeller discovers CPU capabilities and labels eligible nodes. Red Hat uses these labels when deciding where VMs can run and migrate.
 
@@ -1153,7 +1153,7 @@ oc get nodes \
     "\($n) \(.key)=\(.value)"'
 ```
 
-10. Check KubeVirt resources advertised by kubelet
+- 10. Check KubeVirt resources advertised by kubelet
 
 After OpenShift Virtualization is fully installed:
 ```bash
@@ -1170,7 +1170,7 @@ oc describe node <NODE> | grep -A10 -B3 kubevirt
 
 This is one of the most useful post-install checks.
 
-11. Do not add a worker nodeSelector to HCO
+- 11. Do not add a worker nodeSelector to HCO
 
 This is particularly important for this topology (three scheduleable masters).
 
